@@ -17,6 +17,22 @@ in your html:
 	(onVisualization)="onVisualization($event)"></visualization-points>
 ```
 
+in your `.angular-cli.json` file include the following:
+```javascript
+  "apps": [
+    {
+      ....
+
+      "assets": [
+        "assets",
+        { "glob": "**/*", "input": "../node_modules/visualization-points/assets/", "output": "./assets/" },
+        "favicon.ico"
+      ],
+
+      ....
+
+```
+
 # Version 0.0.1
 
 ```
