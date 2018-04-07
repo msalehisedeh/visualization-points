@@ -1,0 +1,38 @@
+<p class="info">
+    <span>
+        Pick points are the attributes in which you want to evaluate. 
+        Target keys are the attributes in which evaluated data will be presented on.
+    </span>
+    <span>
+        For example: if you are examining users and pick user age and city as pick points, 
+        data will be evaluated on city and age. And if you pick user name and gender as target keys, 
+        for each age and city reference, you will see the resulting data as name and age values.</span>
+</p>
+<fieldset class="pick-points">
+    <legend>Pick Points:</legend>
+    <label *ngFor="let x of interestingPoints; let i = index" [for]="'pickpoint' + i">
+        <input
+            type="checkbox" 
+            name="pickpoint" 
+            [id]="'pickpoint' + i" 
+            [value]="x.value" 
+            [checked]="x.selected ? true: null" 
+            (keyup)="keyup($event)"
+            (click)="click($event, x)" />
+        <span [textContent]="x.value"></span>
+    </label>
+</fieldset>
+<fieldset class="pick-points">
+    <legend>Target Keys:</legend>
+    <label *ngFor="let x of targetKeys; let i = index" [for]="'targetKey' + i">
+        <input 
+            type="checkbox" 
+            name="targetKey" 
+            [id]="'targetKey' + i" 
+            [value]="x.value" 
+            [checked]="x.selected ? true: null" 
+            (keyup)="keyup($event)"
+            (click)="click($event, x)" /> 
+        <span [textContent]="x.value"></span>
+    </label>   
+</fieldset>

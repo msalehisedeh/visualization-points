@@ -1,0 +1,46 @@
+{
+  "name": "visualization-points",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "lint": "ng lint",
+    "packagr": "ng-packagr -p ng-package.json"
+  },
+  "private": false,
+  "keywords": [
+    "d3",
+    "visualization",
+    "svg",
+    "animation",
+    "canvas",
+    "angular",
+    "data mining"
+  ],
+  "dependencies": {
+    "@angular/common": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/compiler": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/core": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "core-js": "^2.4.1",
+    "zone.js": "^0.8.14",
+    "tslib": "^1.7.1"
+  },
+  "devDependencies": {
+    "@angular/cli": "^1.6.7",
+    "@angular/compiler-cli": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@types/node": "^6.0.60",
+    "codelyzer": "^3.2.0",
+    "ng-packagr": "^2.0.0",
+    "protractor": "^5.1.2",
+    "ts-node": "^3.2.0",
+    "tslint": "^5.7.0",
+    "typescript": "^2.4.2"
+  },
+  "main": "bundles/visualization-points.umd.js",
+  "module": "esm5/visualization-points.js",
+  "es2015": "esm2015/visualization-points.js",
+  "typings": "visualization-points.d.ts",
+  "metadata": "visualization-points.metadata.json"
+}

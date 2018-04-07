@@ -1,0 +1,18 @@
+
+.json-view {
+    border: 1px solid #888;
+    background-color: #fefefe;
+    border-radius: 5px;
+    box-sizing: border-box;
+    display: block;
+    max-height: 222px;
+    overflow-y: auto;
+    position: relative;
+
+    font-family: monospace;
+    float: left;
+    padding: 5px;
+    unicode-bidi: embed;
+    width: 100%;
+    white-space: pre-wrap;
+}

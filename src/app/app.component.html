@@ -1,0 +1,21 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>
+    Welcome to {{ title }}!
+  </h1>
+</div>
+<div class="points-maker">
+  <label for="dataselection">Select a Data set example</label>
+  <select id="dataselection" (change)="visualizeDataSet($event)">
+      <option value="users">Users</option>
+      <option value="events">Events</option>
+      <option value="products">Products</option>
+    </select>
+</div>
+<visualization-points
+	[data]="myDataSet"
+  [enableConfiguration]="true"
+	(onVisualization)="onVisualization($event)"></visualization-points>
+    
+<div class="json-view" [innerHTML]="resultingTree | json"></div>
+

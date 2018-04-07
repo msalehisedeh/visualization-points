@@ -1,0 +1,9 @@
+
+
+<div class="configuration" *ngIf="enableConfiguration && interestingPoints">
+    <visualization-configuration
+        [interestingPoints]="interestingPoints"
+        [targetKeys]="targetKeys"
+        (onchange)="onchange($event)"></visualization-configuration>
+</div>
+<div class="d3-container" id="d3-container" #d3Container></div>

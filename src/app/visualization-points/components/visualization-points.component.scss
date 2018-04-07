@@ -1,0 +1,33 @@
+:host {
+  box-sizing: border-box;
+  display: table;
+  position: relative;
+  width: 100%;  
+
+  #d3-container {
+    border: 1px solid #ddd;
+    padding: 5px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    background-color: #fefefe;
+  }
+
+  ::ng-deep .node circle {
+    cursor: pointer;
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+  
+::ng-deep .node text {
+    font-size: 11px;
+    font-weight: bold;
+  }
+  
+  ::ng-deep path.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+  }
+
+}
