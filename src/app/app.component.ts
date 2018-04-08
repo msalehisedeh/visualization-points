@@ -8,7 +8,7 @@ import { AppService } from './app.service'
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'Visual Points';
+  title = 'Visualization Points';
   
   myDataSet = [];  
   resultingTree = {};
@@ -27,15 +27,15 @@ export class AppComponent {
     const data = event.target.value;
 
     this.myDataSet = undefined;
-    if(data==="users") {
+    if(data === "users") {
       this.service.usersList().subscribe( (results) => {
         this.myDataSet = results;
       })
-    } else if(data==="events") {
+    } else if(data === "events") {
       this.service.eventsList().subscribe( (results) => {
         this.myDataSet = results;
       })
-    } else if(data==="products") {
+    } else if(data === "products") {
       this.service.productsList().subscribe( (results) => {
         this.myDataSet = results;
       })

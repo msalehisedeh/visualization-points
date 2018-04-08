@@ -246,6 +246,7 @@ class VisualizationPointsComponent {
             const /** @type {?} */ script = document.getElementById(id);
             if (!script) {
                 const /** @type {?} */ scriptElement = document.createElement('script');
+                scriptElement.type = "text/javascript";
                 scriptElement.src = url;
                 scriptElement.id = id;
                 scriptElement.onload = resolve;
@@ -418,22 +419,24 @@ VisualizationConfigurationComponent.decorators = [
   display:table;
   padding:5px; }
   :host .info{
-    padding:5px;
-    margin:5px; }
+    padding:5px 0;
+    margin:0;
+    font-size:0.9em; }
   :host .pick-points{
     -webkit-box-sizing:border-box;
             box-sizing:border-box;
     border:1px solid #444;
     display:block;
     float:left;
-    padding:0;
-    width:49%; }
+    padding:0 0 5px 0;
+    width:50%;
+    margin:0;
+    border-radius:5px; }
     :host .pick-points label{
-      padding:2px 0;
       display:inline-table;
-      width:33%; }
+      width:33.33%; }
       :host .pick-points label:hover{
-        color:#933; }
+        color:#ca0000; }
 `],
             },] },
 ];

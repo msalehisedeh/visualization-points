@@ -1,9 +1,11 @@
 # Welcome to Visualization Points!
 
 Have you ever wanted to extract information in visually pleasing way from a data set without knowing, in advance, what the data looks like? 
-Have wondered how what it takes to do it? Well... wonder no more and add this component into your project... 
+Have you wondered what it takes to do it? and how long will it takes? Well... wonder no more and add this component into your project... 
 
-[Live Demo](https://visualization-pints.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
+If you want to see the result represented in any other form or fashion, you are welcome to shoot me a message or join me in this effort and make it even easier to snoop into a data of unknown structure...
+
+[Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
 ## So... How it can be done?
 
@@ -31,6 +33,26 @@ in your `.angular-cli.json` file include the following:
 
       ....
 
+```
+
+Alternatively, if you already know about the json structure and do not want to see the configuration fields, you can do the following:
+```javascript
+<visualization-points
+	[data]="myDataSet"
+  	[targetKeys]="myTargetKeys"
+  	[interestingPoints]="myPoints"
+	  (onVisualization)="onVisualization($event)"></visualization-points>
+
+
+  where 
+  myTargetKeys could be =[
+    {key: "user.name", value: "Name"},
+    {key: "user.address.city", value: "City"}
+  ]
+  myPoints could be =[
+    {key: "user.address.city", value: "City"},
+    {key: "user.income", value: "Income"}
+  ]
 ```
 
 # Version 0.0.1

@@ -106,6 +106,7 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
       if (!script) {
         const scriptElement = document.createElement('script');
      
+        scriptElement.type = "text/javascript";
         scriptElement.src = url;
         scriptElement.id = id;
         scriptElement.onload = resolve;
