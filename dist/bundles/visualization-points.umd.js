@@ -91,7 +91,7 @@ var VisualizationPointsMaker = (function () {
             if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
                 _this.points.push({
                     key: innerPath,
-                    value: innerPath.replace(/\./g, ' ')
+                    value: _this.makeWords(innerPath)
                 });
             }
             else if (root[key] instanceof Array) {
@@ -102,7 +102,7 @@ var VisualizationPointsMaker = (function () {
                 else {
                     _this.points.push({
                         key: innerPath,
-                        value: innerPath.replace(/\./g, ' ')
+                        value: _this.makeWords(innerPath)
                     });
                 }
             }
@@ -111,6 +111,18 @@ var VisualizationPointsMaker = (function () {
             }
         });
         return this.points;
+    };
+    /**
+     * @param {?} name
+     * @return {?}
+     */
+    VisualizationPointsMaker.prototype.makeWords = function (name) {
+        return name
+            .replace(/\./g, ' ')
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/-/g, " ")
+            .replace(/_/g, " ")
+            .replace(/^./, function (str) { return str.toUpperCase(); });
     };
     return VisualizationPointsMaker;
 }());
@@ -153,6 +165,42 @@ var VisualizationPointsEvaluator = (function () {
         }
     };
     /**
+     * @param {?} pItem
+     * @param {?} path
+     * @return {?}
+     */
+    VisualizationPointsEvaluator.prototype.eveluate = function (pItem, path) {
+        var _this = this;
+        var _loop_1 = function (i) {
+            pItem = pItem[path[i]];
+            if (pItem instanceof Array) {
+                var /** @type {?} */ list_1 = [];
+                pItem.map(function (item) {
+                    list_1.push(_this.eveluate(item, path.slice(i + 1, path.length)));
+                });
+                pItem = list_1;
+                return "break";
+            }
+        };
+        for (var /** @type {?} */ i = 0; i < path.length; i++) {
+            var state_1 = _loop_1(/** @type {?} */ i);
+            if (state_1 === "break")
+                break;
+        }
+        return pItem;
+    };
+    /**
+     * @param {?} name
+     * @return {?}
+     */
+    VisualizationPointsEvaluator.prototype.makeWords = function (name) {
+        return name
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/-/g, " ")
+            .replace(/_/g, " ")
+            .replace(/^./, function (str) { return str.toUpperCase(); });
+    };
+    /**
      * @param {?} data
      * @param {?} pickPoints
      * @param {?} primarys
@@ -178,14 +226,17 @@ var VisualizationPointsEvaluator = (function () {
             pickPoints.map(function (point) {
                 var /** @type {?} */ path = point.key.split(".");
                 var /** @type {?} */ list = innerMap[point.value];
-                var /** @type {?} */ pItem = item;
-                path.map(function (key) {
-                    pItem = pItem[key];
-                });
+                var /** @type {?} */ pItem = _this.eveluate(item, path);
                 if (pItem instanceof Array) {
                     pItem.map(function (p) {
                         _this.pushInList(list, p, { name: displayData });
                     });
+                }
+                else if (typeof pItem === "string") {
+                    _this.pushInList(list, pItem, { name: displayData });
+                }
+                else if (typeof pItem === "boolean") {
+                    _this.pushInList(list, (pItem ? "true" : "false"), { name: displayData });
                 }
                 else if (pItem) {
                     _this.pushInList(list, pItem, { name: displayData });
@@ -198,7 +249,7 @@ var VisualizationPointsEvaluator = (function () {
         var /** @type {?} */ rootList = [];
         Object.keys(innerMap).map(function (key) {
             rootList.push({
-                name: key,
+                name: _this.makeWords(key),
                 children: innerMap[key]
             });
         });
@@ -243,7 +294,6 @@ var VisualizationPointsComponent = (function () {
             points.children.map(function (p) {
                 _this.sizeUp(p);
             });
-            this.displayHeight += size;
         }
         return points;
     };
@@ -256,14 +306,13 @@ var VisualizationPointsComponent = (function () {
         if (points.length && primaries.length) {
             this.d3Container.nativeElement.innerHTML = "";
             this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries);
-            this.displayHeight = 0;
             var /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-            this.displayHeight = this.displayHeight * 22;
-            window['initiateD3'](sizedupPoints, "#d3-container", this.displayHeight);
+            window['initiateD3'](sizedupPoints, "#d3-container");
             this.onVisualization.emit(this.evaluatedPoints);
         }
         else {
             this.d3Container.nativeElement.innerHTML = "";
+            this.onVisualization.emit([]);
         }
     };
     /**

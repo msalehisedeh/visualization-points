@@ -5,7 +5,6 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     private pointMaker;
     private evaluator;
     private evaluatedPoints;
-    private displayHeight;
     interestingPoints: any[];
     targetKeys: any[];
     data: any;

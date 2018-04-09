@@ -23,7 +23,6 @@ import { VisualizationPointsEvaluator } from '../injectables/visualization-point
 export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnChanges  {
 
   private evaluatedPoints = {};
-  private displayHeight: number;
   
   @Input("interestingPoints")
   interestingPoints = [];
@@ -50,7 +49,6 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
       points.children.map( (p) => {
         this.sizeUp(p);
       })
-      this.displayHeight += size;
     }
     return points;
   }
@@ -58,13 +56,12 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
     if (points.length && primaries.length) {
       this.d3Container.nativeElement.innerHTML = "";
       this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries);
-      this.displayHeight = 0;
       const sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-      this.displayHeight = this.displayHeight * 22;
-      window['initiateD3'](sizedupPoints, "#d3-container", this.displayHeight);
+      window['initiateD3'](sizedupPoints, "#d3-container");
       this.onVisualization.emit(this.evaluatedPoints);
     } else {
       this.d3Container.nativeElement.innerHTML = "";
+      this.onVisualization.emit([]);
     }
   }
 

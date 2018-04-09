@@ -27,6 +27,28 @@ export class VisualizationPointsEvaluator {
     }
   }
 
+  private eveluate( pItem:any, path: any[]) {
+    for (let i = 0; i < path.length; i++) {
+      pItem = pItem[path[i]];
+      if (pItem instanceof Array) {
+        const list = [];
+        pItem.map( (item) => {
+          list.push(this.eveluate(item, path.slice(i+1,path.length)));
+        });
+        pItem = list;
+        break;
+      }
+    }
+    return pItem;
+  }
+  private makeWords(name) {
+    return name
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/-/g," ")
+            .replace(/_/g," ")
+            .replace(/^./, (str) => str.toUpperCase());
+  }
+
   evaluatePoints(data: any[], pickPoints: any[], primarys: any[]) {
 
     const innerMap = {};
@@ -52,16 +74,17 @@ export class VisualizationPointsEvaluator {
       pickPoints.map( (point) => {
         const path = point.key.split(".");
         const list = innerMap[point.value];
-        let pItem = item;
+        const pItem: any = this.eveluate(item, path);
         let found = false;
 
-        path.map( (key) => {
-          pItem = pItem[key];
-        });
         if (pItem instanceof Array) {
           pItem.map( (p) => {
             this.pushInList(list, p, {name: displayData});
           });
+        }else if (typeof pItem === "string") {
+          this.pushInList(list, pItem,{name: displayData});
+        }else if (typeof pItem === "boolean") {
+          this.pushInList(list, (pItem ? "true":"false"),{name: displayData});
         }else if (pItem) {
           this.pushInList(list, pItem,{name: displayData});
         } else {
@@ -73,7 +96,7 @@ export class VisualizationPointsEvaluator {
     const rootList = [];
     Object.keys(innerMap).map( (key) => {
       rootList.push({
-        name: key,
+        name: this.makeWords(key),
         children: innerMap[key]
       });
     })

@@ -34,7 +34,7 @@ class VisualizationPointsMaker {
             if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
                 this.points.push({
                     key: innerPath,
-                    value: innerPath.replace(/\./g, ' ')
+                    value: this.makeWords(innerPath)
                 });
             }
             else if (root[key] instanceof Array) {
@@ -45,7 +45,7 @@ class VisualizationPointsMaker {
                 else {
                     this.points.push({
                         key: innerPath,
-                        value: innerPath.replace(/\./g, ' ')
+                        value: this.makeWords(innerPath)
                     });
                 }
             }
@@ -54,6 +54,18 @@ class VisualizationPointsMaker {
             }
         });
         return this.points;
+    }
+    /**
+     * @param {?} name
+     * @return {?}
+     */
+    makeWords(name) {
+        return name
+            .replace(/\./g, ' ')
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/-/g, " ")
+            .replace(/_/g, " ")
+            .replace(/^./, (str) => str.toUpperCase());
     }
 }
 VisualizationPointsMaker.decorators = [
@@ -94,6 +106,36 @@ class VisualizationPointsEvaluator {
         }
     }
     /**
+     * @param {?} pItem
+     * @param {?} path
+     * @return {?}
+     */
+    eveluate(pItem, path) {
+        for (let /** @type {?} */ i = 0; i < path.length; i++) {
+            pItem = pItem[path[i]];
+            if (pItem instanceof Array) {
+                const /** @type {?} */ list = [];
+                pItem.map((item) => {
+                    list.push(this.eveluate(item, path.slice(i + 1, path.length)));
+                });
+                pItem = list;
+                break;
+            }
+        }
+        return pItem;
+    }
+    /**
+     * @param {?} name
+     * @return {?}
+     */
+    makeWords(name) {
+        return name
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/-/g, " ")
+            .replace(/_/g, " ")
+            .replace(/^./, (str) => str.toUpperCase());
+    }
+    /**
      * @param {?} data
      * @param {?} pickPoints
      * @param {?} primarys
@@ -118,14 +160,17 @@ class VisualizationPointsEvaluator {
             pickPoints.map((point) => {
                 const /** @type {?} */ path = point.key.split(".");
                 const /** @type {?} */ list = innerMap[point.value];
-                let /** @type {?} */ pItem = item;
-                path.map((key) => {
-                    pItem = pItem[key];
-                });
+                const /** @type {?} */ pItem = this.eveluate(item, path);
                 if (pItem instanceof Array) {
                     pItem.map((p) => {
                         this.pushInList(list, p, { name: displayData });
                     });
+                }
+                else if (typeof pItem === "string") {
+                    this.pushInList(list, pItem, { name: displayData });
+                }
+                else if (typeof pItem === "boolean") {
+                    this.pushInList(list, (pItem ? "true" : "false"), { name: displayData });
                 }
                 else if (pItem) {
                     this.pushInList(list, pItem, { name: displayData });
@@ -138,7 +183,7 @@ class VisualizationPointsEvaluator {
         const /** @type {?} */ rootList = [];
         Object.keys(innerMap).map((key) => {
             rootList.push({
-                name: key,
+                name: this.makeWords(key),
                 children: innerMap[key]
             });
         });
@@ -182,7 +227,6 @@ class VisualizationPointsComponent {
             points.children.map((p) => {
                 this.sizeUp(p);
             });
-            this.displayHeight += size;
         }
         return points;
     }
@@ -195,14 +239,13 @@ class VisualizationPointsComponent {
         if (points.length && primaries.length) {
             this.d3Container.nativeElement.innerHTML = "";
             this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries);
-            this.displayHeight = 0;
             const /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-            this.displayHeight = this.displayHeight * 22;
-            window['initiateD3'](sizedupPoints, "#d3-container", this.displayHeight);
+            window['initiateD3'](sizedupPoints, "#d3-container");
             this.onVisualization.emit(this.evaluatedPoints);
         }
         else {
             this.d3Container.nativeElement.innerHTML = "";
+            this.onVisualization.emit([]);
         }
     }
     /**

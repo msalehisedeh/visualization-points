@@ -135,6 +135,10 @@ export class AppService {
             {
               "id": 2,
               "name": "Carol Dillon"
+            },
+            {
+              "id": 3,
+              "name": "Powers Pitts"
             }
           ],
           "greeting": "Hello, Tonya Sweeney! You have 8 unread messages.",

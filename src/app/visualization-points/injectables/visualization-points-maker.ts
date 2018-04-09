@@ -29,7 +29,7 @@ export class VisualizationPointsMaker {
       if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
         this.points.push({
           key: innerPath,
-          value: innerPath.replace(/\./g,' ')
+          value: this.makeWords(innerPath)
         })
       } else if (root[key] instanceof Array) {
         const node = root[key];
@@ -38,7 +38,7 @@ export class VisualizationPointsMaker {
         } else {
           this.points.push({
             key: innerPath,
-            value: innerPath.replace(/\./g,' ')
+            value: this.makeWords(innerPath)
           })
         }
       } else {
@@ -49,4 +49,12 @@ export class VisualizationPointsMaker {
     return this.points;
   }
 
+  private makeWords(name) {
+    return name
+            .replace(/\./g,' ')
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/-/g," ")
+            .replace(/_/g," ")
+            .replace(/^./, (str) => str.toUpperCase());
+  }
 }

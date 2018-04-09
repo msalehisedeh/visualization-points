@@ -1,7 +1,7 @@
 # Welcome to Visualization Points!
 
 Have you ever wanted to extract information in visually pleasing way from a data set without knowing, in advance, what the data looks like? 
-Have you wondered what it takes to do it? and how long will it takes? Well... wonder no more and add this component into your project... 
+Have you wondered what it takes to do it? and how long will it take? Well... wonder no more and add this component into your project... 
 
 If you want to see the result represented in any other form or fashion, you are welcome to shoot me a message or join me in this effort and make it even easier to snoop into a data of unknown structure...
 
@@ -54,6 +54,10 @@ Alternatively, if you already know about the json structure and do not want to s
     {key: "user.income", value: "Income"}
   ]
 ```
+
+# Version 0.0.3
+1- Fixed logic issues related to value of pick point being a boolean.
+2- Fixed logic issues related to value of pick point being an array.
 
 # Version 0.0.1
 

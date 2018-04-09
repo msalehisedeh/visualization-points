@@ -6041,8 +6041,9 @@ function d3_layout_treemapPad(node, padding) {
 
 var root;
 var vis;
+var mySvg;
 var m = [5, 10, 5, 10],
-    w = 1280 - m[1] - m[3],
+    w = 1200 - m[1] - m[3],
     h = 800 - m[0] - m[2],
     i = 0;
 
@@ -6051,34 +6052,56 @@ var tree = d3.layout.tree().size([h, w]);
 var diagonal = d3.svg.diagonal()
     .projection(function(d) { return [d.y, d.x]; });
 
-function initiateD3(rootNode, targetDiv, height) {
-    root = rootNode;
-    tree.size([height, w]);
-
-    vis = d3.select(targetDiv).append("svg:svg")
-        .attr("width", w + m[1] + m[3])
-        .attr("height", height + m[0] + m[2])
-      .append("svg:g")
-        .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
-    root.x0 = h / 2;
-    root.y0 = 0;
-
-    function initiate(list) {
-      if (list) {
-          for(var i = 0; i < list.length;i++) {
-              if (root.children[i].selected) {
-                toggle(root.children[i]);
-                initiate(root.children[i].children);
-              }
-          }
+function nodeCount(children, counter) {
+  if (children) {
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      counter++;
+      if (child.children) {
+        counter += nodeCount(child.children, 0);
       }
     }
+  }
+  return counter;
+}
+function depthCount(children){
+  var depth = 0;
+  if (children) {
+    for (var i = 0; i < children.lenth; i++) {
+      var child = children[i];
+      var tmp = depthCount(child.children);
+      if (temp > depth) {
+        depth = temp;
+      }
+    }
+  }
+  return depth;
+}
+function resize(rootNode) {
+  var depth = depthCount(rootNode.children);
+  var height = 100 + (nodeCount(rootNode.children, 0) * 22);
+  var width = depth < 4 ? 1000 : depth * 400;
 
-    // Initialize the display to show a few nodes.
-    initiate(root.children);
+  w = width - m[1] - m[3];
+  h = height - m[0] - m[2];
 
-    update(root);
+  tree.size([height, width]);
+  mySvg.attr("width", width).attr("height",height);
+
+  rootNode.x0 = h / 2;
+  rootNode.y0 = 0;
+  
+  return rootNode;
+}
+function initiateD3(rootNode, targetDiv) {
+
+  mySvg = d3.select(targetDiv).append("svg:svg");
+  vis = mySvg.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+  root = resize(rootNode);
+
+  update(root);
+  resize(root);
+  update(root);
 }
 window['initiateD3'] = initiateD3;
 
@@ -6106,7 +6129,10 @@ function update(source) {
   var nodeEnter = node.enter().append("svg:g")
       .attr("class", "node")
       .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-      .on("click", function(d) { toggle(d); update(d); });
+      .on("click", function(d) { 
+        toggle(d); 
+        update(d);
+      });
 
   nodeEnter.append("svg:circle")
       .attr("r", 1e-6)
@@ -6188,4 +6214,5 @@ function toggle(d) {
     d.children = d._children;
     d._children = null;
   }
+  resize(root);
 }          
