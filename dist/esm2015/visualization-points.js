@@ -85,6 +85,22 @@ VisualizationPointsMaker.ctorParameters = () => [];
  */
 class VisualizationPointsEvaluator {
     /**
+     * @param {?} array
+     * @param {?} entry
+     * @return {?}
+     */
+    pushIfNotContain(array, entry) {
+        let /** @type {?} */ found = false;
+        array.map((item) => {
+            if (item.name.indexOf(entry.name) > -1) {
+                found = true;
+            }
+        });
+        if (!found) {
+            array.push(entry);
+        }
+    }
+    /**
      * @param {?} list
      * @param {?} item
      * @param {?} displayData
@@ -95,7 +111,7 @@ class VisualizationPointsEvaluator {
         list.map((subItem) => {
             if (subItem.name === item) {
                 found = true;
-                subItem.children.push(displayData);
+                this.pushIfNotContain(subItem.children, displayData);
             }
         });
         if (!found) {
@@ -176,7 +192,7 @@ class VisualizationPointsEvaluator {
                     this.pushInList(list, pItem, { name: displayData });
                 }
                 else {
-                    list.push({ name: displayData });
+                    this.pushIfNotContain(list, { name: displayData });
                 }
             });
         });

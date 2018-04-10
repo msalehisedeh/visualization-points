@@ -55,6 +55,9 @@ Alternatively, if you already know about the json structure and do not want to s
   ]
 ```
 
+# Version 0.0.4
+1- Removing duplicates in generated result.
+
 # Version 0.0.3
 1- Fixed logic issues related to value of pick point being a boolean.
 2- Fixed logic issues related to value of pick point being an array.

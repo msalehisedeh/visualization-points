@@ -87,17 +87,34 @@ var VisualizationPointsEvaluator = (function () {
     function VisualizationPointsEvaluator() {
     }
     /**
+     * @param {?} array
+     * @param {?} entry
+     * @return {?}
+     */
+    VisualizationPointsEvaluator.prototype.pushIfNotContain = function (array, entry) {
+        var /** @type {?} */ found = false;
+        array.map(function (item) {
+            if (item.name.indexOf(entry.name) > -1) {
+                found = true;
+            }
+        });
+        if (!found) {
+            array.push(entry);
+        }
+    };
+    /**
      * @param {?} list
      * @param {?} item
      * @param {?} displayData
      * @return {?}
      */
     VisualizationPointsEvaluator.prototype.pushInList = function (list, item, displayData) {
+        var _this = this;
         var /** @type {?} */ found = false;
         list.map(function (subItem) {
             if (subItem.name === item) {
                 found = true;
-                subItem.children.push(displayData);
+                _this.pushIfNotContain(subItem.children, displayData);
             }
         });
         if (!found) {
@@ -185,7 +202,7 @@ var VisualizationPointsEvaluator = (function () {
                     _this.pushInList(list, pItem, { name: displayData });
                 }
                 else {
-                    list.push({ name: displayData });
+                    _this.pushIfNotContain(list, { name: displayData });
                 }
             });
         });

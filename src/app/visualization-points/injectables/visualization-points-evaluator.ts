@@ -9,6 +9,17 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class VisualizationPointsEvaluator {
+  private pushIfNotContain(array, entry) {
+    let found = false;
+    array.map( (item) => {
+      if (item.name.indexOf(entry.name) > -1) {
+        found = true;
+      }
+    });
+    if (!found) {
+      array.push(entry);
+    }
+  }
 
   private pushInList(list, item, displayData) {
     let found = false;
@@ -16,7 +27,7 @@ export class VisualizationPointsEvaluator {
     list.map( (subItem) => {
       if (subItem.name === item) {
         found = true;
-        subItem.children.push(displayData);
+        this.pushIfNotContain(subItem.children, displayData);
       }
     });
     if (!found) {
@@ -88,7 +99,7 @@ export class VisualizationPointsEvaluator {
         }else if (pItem) {
           this.pushInList(list, pItem,{name: displayData});
         } else {
-          list.push({name: displayData});
+          this.pushIfNotContain(list, {name: displayData} );
         }
       });
     });
