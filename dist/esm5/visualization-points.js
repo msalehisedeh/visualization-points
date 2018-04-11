@@ -132,7 +132,7 @@ var VisualizationPointsEvaluator = (function () {
     VisualizationPointsEvaluator.prototype.eveluate = function (pItem, path) {
         var _this = this;
         var _loop_1 = function (i) {
-            pItem = pItem[path[i]];
+            pItem = pItem ? pItem[path[i]] : null;
             if (pItem instanceof Array) {
                 var /** @type {?} */ list_1 = [];
                 pItem.map(function (item) {
@@ -178,9 +178,11 @@ var VisualizationPointsEvaluator = (function () {
                 var /** @type {?} */ path = point.key.split(".");
                 var /** @type {?} */ pItem = item;
                 path.map(function (key) {
-                    pItem = pItem[key];
+                    pItem = pItem ? pItem[key] : null;
                 });
-                displayData.push(pItem);
+                if (pItem) {
+                    displayData.push(pItem);
+                }
             });
             displayData = displayData.join(", ");
             pickPoints.map(function (point) {
@@ -290,6 +292,9 @@ var VisualizationPointsComponent = (function () {
      * @return {?}
      */
     VisualizationPointsComponent.prototype.ngOnInit = function () {
+        if (!(this.data instanceof Array)) {
+            this.data = [this.data];
+        }
         if (this.data.length && this.enableConfiguration) {
             var /** @type {?} */ root = (this.data instanceof Array) ? this.data[0] : this.data;
             var /** @type {?} */ points = this.pointMaker.generatePoints(root, "", true);
@@ -337,7 +342,7 @@ var VisualizationPointsComponent = (function () {
      */
     VisualizationPointsComponent.prototype.sanitize = function (list) {
         var /** @type {?} */ sanitizedPoints = [];
-        if (!list || list.length) {
+        if (list && list.length) {
             list.map(function (point) {
                 if (point.selected) {
                     sanitizedPoints.push({
@@ -362,7 +367,7 @@ VisualizationPointsComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-points',
                 template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #ddd;\n    padding:5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #ddd;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
             },] },
 ];
 /** @nocollapse */
@@ -421,7 +426,7 @@ VisualizationConfigurationComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-configuration',
                 template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #444;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:50%;\n    margin:0;\n    border-radius:5px; }\n    :host .pick-points label{\n      display:inline-table;\n      width:33.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n"],
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:50%;\n    margin:0;\n    border-radius:5px; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:33.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n"],
             },] },
 ];
 /** @nocollapse */

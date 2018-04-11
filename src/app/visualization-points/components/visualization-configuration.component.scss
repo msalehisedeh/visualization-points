@@ -10,13 +10,19 @@
   }
   .pick-points {
     box-sizing: border-box;
-    border: 1px solid #444;
+    border: 1px solid #633;
     display: block;
     float: left;
     padding: 0 0 5px 0;
     width: 50%;
     margin: 0;
     border-radius: 5px;
+
+    legend {
+      font-weight: bold;
+      margin-left: 20px;
+      color: #633;
+    }
 
     label {
       display: inline-table;

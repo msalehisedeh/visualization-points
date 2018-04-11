@@ -10,10 +10,46 @@
     position: relative;
 
     font-family: monospace;
-    font-size: 0.9em;
     float: left;
     padding: 5px;
     unicode-bidi: embed;
     width: 100%;
     white-space: pre-wrap;
+}
+
+#entry {
+    width: 90%;
+    height: 100%;
+    display: table;
+    z-index: 22;
+    border: 1px solid #aaa;
+    border-radius: "5px";
+    padding: 15px;
+    margin: 10px auto;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px 2px #ddd;
+
+  a {
+    float: right;
+    cursor: pointer;
+  }
+  textarea {
+    display: table;
+  }
+
+  label {
+    display: table;
+    margin: 5px 0;
+  }
+  button {
+    float: right;
+    margin-bottom: 20px;
+  }
+}
+button {
+  float: laft;
+}
+td {
+  width: 50%;
 }

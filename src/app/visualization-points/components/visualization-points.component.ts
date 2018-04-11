@@ -81,6 +81,9 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   }
 
   ngOnInit() {
+    if( !(this.data instanceof Array)) {
+      this.data = [this.data];
+    }
     if (this.data.length && this.enableConfiguration) {
       const root = (this.data instanceof Array) ? this.data[0] : this.data;
       const points = this.pointMaker.generatePoints(root, "", true);
@@ -115,7 +118,7 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   
   private sanitize(list) {
     const sanitizedPoints = [];
-    if (!list || list.length) {
+    if (list && list.length) {
       list.map((point) => {
         if (point.selected) {
           sanitizedPoints.push({

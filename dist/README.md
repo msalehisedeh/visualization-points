@@ -7,6 +7,30 @@ If you want to see the result represented in any other form or fashion, you are 
 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
+
+## Version 0.0.5
+1- fixed internal logic for parsing JSON attributes.
+
+## Version 0.0.4
+1- Removing duplicates in generated result.
+
+## Version 0.0.3
+1- Fixed logic issues related to value of pick point being a boolean.
+2- Fixed logic issues related to value of pick point being an array.
+
+## Version 0.0.1
+
+```
+MODULE:
+  VisualizationPointsModule
+
+EXPORTS:
+  VisualizationPointsComponent
+  VisualizationConfigurationComponent
+
+```
+
+
 ## So... How it can be done?
 
 Run `npm install visualization-points` in your application. and do the following:
@@ -55,23 +79,5 @@ Alternatively, if you already know about the json structure and do not want to s
   ]
 ```
 
-# Version 0.0.4
-1- Removing duplicates in generated result.
-
-# Version 0.0.3
-1- Fixed logic issues related to value of pick point being a boolean.
-2- Fixed logic issues related to value of pick point being an array.
-
-# Version 0.0.1
-
-```
-MODULE:
-  VisualizationPointsModule
-
-EXPORTS:
-  VisualizationPointsComponent
-  VisualizationConfigurationComponent
-
-```
 
 ![alt text](https://raw.githubusercontent.com/msalehisedeh/visualization-points/master/sample.png  "What you would see when a visualization points is used")

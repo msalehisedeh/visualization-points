@@ -128,7 +128,7 @@ class VisualizationPointsEvaluator {
      */
     eveluate(pItem, path) {
         for (let /** @type {?} */ i = 0; i < path.length; i++) {
-            pItem = pItem[path[i]];
+            pItem = pItem ? pItem[path[i]] : null;
             if (pItem instanceof Array) {
                 const /** @type {?} */ list = [];
                 pItem.map((item) => {
@@ -168,9 +168,11 @@ class VisualizationPointsEvaluator {
                 const /** @type {?} */ path = point.key.split(".");
                 let /** @type {?} */ pItem = item;
                 path.map((key) => {
-                    pItem = pItem[key];
+                    pItem = pItem ? pItem[key] : null;
                 });
-                displayData.push(pItem);
+                if (pItem) {
+                    displayData.push(pItem);
+                }
             });
             displayData = displayData.join(", ");
             pickPoints.map((point) => {
@@ -279,6 +281,9 @@ class VisualizationPointsComponent {
      * @return {?}
      */
     ngOnInit() {
+        if (!(this.data instanceof Array)) {
+            this.data = [this.data];
+        }
         if (this.data.length && this.enableConfiguration) {
             const /** @type {?} */ root = (this.data instanceof Array) ? this.data[0] : this.data;
             const /** @type {?} */ points = this.pointMaker.generatePoints(root, "", true);
@@ -319,7 +324,7 @@ class VisualizationPointsComponent {
      */
     sanitize(list) {
         const /** @type {?} */ sanitizedPoints = [];
-        if (!list || list.length) {
+        if (list && list.length) {
             list.map((point) => {
                 if (point.selected) {
                     sanitizedPoints.push({
@@ -359,11 +364,12 @@ VisualizationPointsComponent.decorators = [
   width:100%; }
   :host #d3-container{
     border:1px solid #ddd;
-    padding:5px;
+    padding:0 5px;
     -webkit-box-sizing:border-box;
             box-sizing:border-box;
     border-radius:5px;
-    background-color:#fefefe; }
+    background-color:#fefefe;
+    margin:5px; }
   :host ::ng-deep .node circle{
     cursor:pointer;
     fill:#fff;
@@ -484,13 +490,17 @@ VisualizationConfigurationComponent.decorators = [
   :host .pick-points{
     -webkit-box-sizing:border-box;
             box-sizing:border-box;
-    border:1px solid #444;
+    border:1px solid #633;
     display:block;
     float:left;
     padding:0 0 5px 0;
     width:50%;
     margin:0;
     border-radius:5px; }
+    :host .pick-points legend{
+      font-weight:bold;
+      margin-left:20px;
+      color:#633; }
     :host .pick-points label{
       display:inline-table;
       width:33.33%; }

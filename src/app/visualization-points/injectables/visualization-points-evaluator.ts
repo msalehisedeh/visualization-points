@@ -40,7 +40,7 @@ export class VisualizationPointsEvaluator {
 
   private eveluate( pItem:any, path: any[]) {
     for (let i = 0; i < path.length; i++) {
-      pItem = pItem[path[i]];
+      pItem = pItem ? pItem[path[i]] : null;
       if (pItem instanceof Array) {
         const list = [];
         pItem.map( (item) => {
@@ -76,9 +76,11 @@ export class VisualizationPointsEvaluator {
         let pItem = item;
 
         path.map( (key) => {
-          pItem = pItem[key];
+          pItem = pItem ? pItem[key] : null;
         });
-        displayData.push(pItem);
+        if (pItem) {
+          displayData.push(pItem);
+        }
       });
       displayData = displayData.join(", ");      
 

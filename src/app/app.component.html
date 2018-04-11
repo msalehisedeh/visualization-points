@@ -7,15 +7,35 @@
 <div class="points-maker">
   <label for="dataselection">Select a Data set example</label>
   <select id="dataselection" (change)="visualizeDataSet($event)">
-      <option value="users">Users</option>
-      <option value="events">Events</option>
-      <option value="products">Products</option>
+      <option *ngFor="let i of selectionEntry" [value]="i" [textContent]="i"></option>
     </select>
+<button (click)="displayEntry = true">Add new JSON in dropdown</button>
+</div>
+<div id="entry" *ngIf="displayEntry">
+  <a (click)="displayEntry = false;">X</a>
+  <label for="entryName">Name: <input id="entryName" #entryName /></label>
+  <label for="entryJson">JSON: <textarea id="entryJson" #entryJson cols="40" rows="10"></textarea></label>
+  <button (click)="addDataEntry(entryName.value, entryJson.value)">
+  Submit
+</button>
 </div>
 <visualization-points
 	[data]="myDataSet"
   [enableConfiguration]="true"
 	(onVisualization)="onVisualization($event)"></visualization-points>
-    
-<div class="json-view" [innerHTML]="resultingTree | json"></div>
+
+<table style="width:100%">
+  <thead>
+    <th>Original Data</th>
+    <th>Transformed Data</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top"><div class="json-view" [innerHTML]="myDataSet | json"></div></td>
+      <td valign="top"><div class="json-view" [innerHTML]="resultingTree | json"></div></td>
+    </tr>
+  </tbody>
+</table>   
+
+
 
