@@ -80,12 +80,25 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
     }
   }
 
+  private findReferenceStructureFrom(array): any {
+    let result;
+    let maxSize = 0;
+    array.map( (item)=> {
+       let x = item ? Object.keys(item).length : 0;
+       if (x > maxSize) {
+        maxSize = x;
+        result = item;
+       }
+    });
+    return result;
+  }
+
   ngOnInit() {
     if( !(this.data instanceof Array)) {
       this.data = [this.data];
     }
     if (this.data.length && this.enableConfiguration) {
-      const root = (this.data instanceof Array) ? this.data[0] : this.data;
+      const root = this.findReferenceStructureFrom(this.data);
       const points = this.pointMaker.generatePoints(root, "", true);
       this.interestingPoints = points;
       this.targetKeys = JSON.parse(JSON.stringify(points));

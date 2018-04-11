@@ -289,6 +289,22 @@ var VisualizationPointsComponent = (function () {
         }
     };
     /**
+     * @param {?} array
+     * @return {?}
+     */
+    VisualizationPointsComponent.prototype.findReferenceStructureFrom = function (array) {
+        var /** @type {?} */ result;
+        var /** @type {?} */ maxSize = 0;
+        array.map(function (item) {
+            var /** @type {?} */ x = item ? Object.keys(item).length : 0;
+            if (x > maxSize) {
+                maxSize = x;
+                result = item;
+            }
+        });
+        return result;
+    };
+    /**
      * @return {?}
      */
     VisualizationPointsComponent.prototype.ngOnInit = function () {
@@ -296,7 +312,7 @@ var VisualizationPointsComponent = (function () {
             this.data = [this.data];
         }
         if (this.data.length && this.enableConfiguration) {
-            var /** @type {?} */ root = (this.data instanceof Array) ? this.data[0] : this.data;
+            var /** @type {?} */ root = this.findReferenceStructureFrom(this.data);
             var /** @type {?} */ points = this.pointMaker.generatePoints(root, "", true);
             this.interestingPoints = points;
             this.targetKeys = JSON.parse(JSON.stringify(points));

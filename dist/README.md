@@ -8,6 +8,9 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
 
+## Version 0.0.6
+1- fixed internal logic for picking up the most number of attributes on a list with variant sub-items.
+
 ## Version 0.0.5
 1- fixed internal logic for parsing JSON attributes.
 
