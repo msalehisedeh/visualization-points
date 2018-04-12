@@ -20,6 +20,32 @@ class VisualizationPointsMaker {
         this.points = [];
     }
     /**
+     * @param {?} points
+     * @param {?} root
+     * @return {?}
+     */
+    targetKeysFromGeneratedPoints(points, root) {
+        const /** @type {?} */ targets = [];
+        points.map((point) => {
+            const /** @type {?} */ path = point.key.split(".");
+            let /** @type {?} */ pItem = root;
+            let /** @type {?} */ foundArray = false;
+            path.map((key) => {
+                if (key.length === 0 || pItem instanceof Array) {
+                    pItem = undefined;
+                    foundArray = true;
+                }
+                else {
+                    pItem = pItem ? pItem[key] : pItem;
+                }
+            });
+            if (!foundArray) {
+                targets.push(JSON.parse(JSON.stringify(point)));
+            }
+        });
+        return targets;
+    }
+    /**
      * @param {?} root
      * @param {?} path
      * @param {?} clear
@@ -29,30 +55,32 @@ class VisualizationPointsMaker {
         if (clear) {
             this.points = [];
         }
-        Object.keys(root).map((key) => {
-            const /** @type {?} */ innerPath = (path.length ? (path + "." + key) : key);
-            if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
-                this.points.push({
-                    key: innerPath,
-                    value: this.makeWords(innerPath)
-                });
-            }
-            else if (root[key] instanceof Array) {
-                const /** @type {?} */ node = root[key];
-                if (node.length && !(node[0] instanceof Array) && (typeof node[0] !== "string")) {
-                    this.generatePoints(node[0], innerPath, false);
-                }
-                else {
+        if (root !== null) {
+            Object.keys(root).map((key) => {
+                const /** @type {?} */ innerPath = (path.length ? (path + "." + key) : key);
+                if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
                     this.points.push({
                         key: innerPath,
                         value: this.makeWords(innerPath)
                     });
                 }
-            }
-            else {
-                this.generatePoints(root[key], innerPath, false);
-            }
-        });
+                else if (root[key] instanceof Array) {
+                    const /** @type {?} */ node = root[key];
+                    if (node.length && !(node[0] instanceof Array) && (typeof node[0] !== "string")) {
+                        this.generatePoints(node[0], innerPath, false);
+                    }
+                    else {
+                        this.points.push({
+                            key: innerPath,
+                            value: this.makeWords(innerPath)
+                        });
+                    }
+                }
+                else {
+                    this.generatePoints(root[key], innerPath, false);
+                }
+            });
+        }
         return this.points;
     }
     /**
@@ -61,7 +89,7 @@ class VisualizationPointsMaker {
      */
     makeWords(name) {
         return name
-            .replace(/\./g, ' ')
+            .replace(/\./g, ' ~ ')
             .replace(/([A-Z])/g, ' $1')
             .replace(/-/g, " ")
             .replace(/_/g, " ")
@@ -108,13 +136,23 @@ class VisualizationPointsEvaluator {
      */
     pushInList(list, item, displayData) {
         let /** @type {?} */ found = false;
+        item = item instanceof Array ? item.join("") : item;
+        if (typeof item === "string") {
+            item = item.trim().length ? item : "BLANK";
+        }
+        else if (typeof item === "boolean") {
+            item = item ? "true" : "false";
+        }
+        else {
+            item = item === null ? "NULL" : item;
+        }
         list.map((subItem) => {
             if (subItem.name === item) {
                 found = true;
                 this.pushIfNotContain(subItem.children, displayData);
             }
         });
-        if (!found) {
+        if (!found && item !== null) {
             list.push({
                 name: item,
                 children: [displayData]
@@ -128,7 +166,7 @@ class VisualizationPointsEvaluator {
      */
     eveluate(pItem, path) {
         for (let /** @type {?} */ i = 0; i < path.length; i++) {
-            pItem = pItem ? pItem[path[i]] : null;
+            pItem = pItem ? pItem[path[i]] : pItem;
             if (pItem instanceof Array) {
                 const /** @type {?} */ list = [];
                 pItem.map((item) => {
@@ -168,35 +206,27 @@ class VisualizationPointsEvaluator {
                 const /** @type {?} */ path = point.key.split(".");
                 let /** @type {?} */ pItem = item;
                 path.map((key) => {
-                    pItem = pItem ? pItem[key] : null;
+                    pItem = pItem ? pItem[key] : pItem;
                 });
-                if (pItem) {
-                    displayData.push(pItem);
-                }
+                pItem = (pItem === null ? "NULL" : pItem);
+                displayData.push(String(pItem));
             });
-            displayData = displayData.join(", ");
-            pickPoints.map((point) => {
-                const /** @type {?} */ path = point.key.split(".");
-                const /** @type {?} */ list = innerMap[point.value];
-                const /** @type {?} */ pItem = this.eveluate(item, path);
-                if (pItem instanceof Array) {
-                    pItem.map((p) => {
-                        this.pushInList(list, p, { name: displayData });
-                    });
-                }
-                else if (typeof pItem === "string") {
-                    this.pushInList(list, pItem, { name: displayData });
-                }
-                else if (typeof pItem === "boolean") {
-                    this.pushInList(list, (pItem ? "true" : "false"), { name: displayData });
-                }
-                else if (pItem) {
-                    this.pushInList(list, pItem, { name: displayData });
-                }
-                else {
-                    this.pushIfNotContain(list, { name: displayData });
-                }
-            });
+            displayData = displayData.length ? displayData.join(", ") : undefined;
+            if (displayData) {
+                pickPoints.map((point) => {
+                    const /** @type {?} */ path = point.key.split(".");
+                    const /** @type {?} */ list = innerMap[point.value];
+                    const /** @type {?} */ pItem = this.eveluate(item, path);
+                    if (pItem instanceof Array) {
+                        pItem.map((p) => {
+                            this.pushInList(list, p, { name: displayData });
+                        });
+                    }
+                    else {
+                        this.pushInList(list, pItem, { name: displayData });
+                    }
+                });
+            }
         });
         const /** @type {?} */ rootList = [];
         Object.keys(innerMap).map((key) => {
@@ -304,7 +334,7 @@ class VisualizationPointsComponent {
             const /** @type {?} */ root = this.findReferenceStructureFrom(this.data);
             const /** @type {?} */ points = this.pointMaker.generatePoints(root, "", true);
             this.interestingPoints = points;
-            this.targetKeys = JSON.parse(JSON.stringify(points));
+            this.targetKeys = this.pointMaker.targetKeysFromGeneratedPoints(points, root);
         }
         this.triggerEvaluation(this.sanitize(this.interestingPoints), this.sanitize(this.targetKeys));
     }
@@ -379,7 +409,7 @@ VisualizationPointsComponent.decorators = [
   position:relative;
   width:100%; }
   :host #d3-container{
-    border:1px solid #ddd;
+    border:1px solid #633;
     padding:0 5px;
     -webkit-box-sizing:border-box;
             box-sizing:border-box;
@@ -510,16 +540,17 @@ VisualizationConfigurationComponent.decorators = [
     display:block;
     float:left;
     padding:0 0 5px 0;
-    width:50%;
+    width:100%;
     margin:0;
-    border-radius:5px; }
+    border-radius:5px;
+    background-color:#fefefe; }
     :host .pick-points legend{
       font-weight:bold;
       margin-left:20px;
       color:#633; }
     :host .pick-points label{
       display:inline-table;
-      width:33.33%; }
+      width:24.33%; }
       :host .pick-points label:hover{
         color:#ca0000; }
 `],

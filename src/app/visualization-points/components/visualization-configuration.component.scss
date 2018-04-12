@@ -14,9 +14,10 @@
     display: block;
     float: left;
     padding: 0 0 5px 0;
-    width: 50%;
+    width: 100%;
     margin: 0;
     border-radius: 5px;
+    background-color: #fefefe;
 
     legend {
       font-weight: bold;
@@ -26,7 +27,7 @@
 
     label {
       display: inline-table;
-      width: 33.33%;
+      width: 24.33%;
 
       &:hover {
         color: #ca0000

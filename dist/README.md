@@ -8,6 +8,12 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
 
+## Version 0.0.7
+1- fixed internal logic to handle complex JSON objects. 
+It turns out, providing correct result values for paths to target keys which are not necessarily 
+intersect with paths in pick points while traversing through arrays, will become extremely complicated. 
+As a result, performance-wise, it is necessary to filter out the deep nested target keys. 
+
 ## Version 0.0.6
 1- fixed internal logic for picking up the most number of attributes on a list with variant sub-items.
 

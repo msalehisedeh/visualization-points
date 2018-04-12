@@ -24,13 +24,22 @@ export class VisualizationPointsEvaluator {
   private pushInList(list, item, displayData) {
     let found = false;
 
+    item = item instanceof Array ? item.join("") : item;
+    if (typeof item === "string") {
+      item = item.trim().length ? item : "BLANK";
+    }else if (typeof item === "boolean") {
+      item = item? "true":"false";
+    } else {
+      item = item === null ? "NULL" : item;
+    }
+
     list.map( (subItem) => {
       if (subItem.name === item) {
         found = true;
         this.pushIfNotContain(subItem.children, displayData);
       }
     });
-    if (!found) {
+    if (!found && item !== null) {
       list.push({
         name: item,
         children: [displayData]
@@ -40,7 +49,7 @@ export class VisualizationPointsEvaluator {
 
   private eveluate( pItem:any, path: any[]) {
     for (let i = 0; i < path.length; i++) {
-      pItem = pItem ? pItem[path[i]] : null;
+      pItem = pItem ? pItem[path[i]] : pItem;
       if (pItem instanceof Array) {
         const list = [];
         pItem.map( (item) => {
@@ -76,34 +85,29 @@ export class VisualizationPointsEvaluator {
         let pItem = item;
 
         path.map( (key) => {
-          pItem = pItem ? pItem[key] : null;
+            pItem = pItem ? pItem[key] : pItem;
         });
-        if (pItem) {
-          displayData.push(pItem);
-        }
+        pItem = (pItem === null ? "NULL" : pItem);
+        displayData.push(String(pItem));
       });
-      displayData = displayData.join(", ");      
+      displayData = displayData.length ? displayData.join(", ") : undefined;      
 
-      pickPoints.map( (point) => {
-        const path = point.key.split(".");
-        const list = innerMap[point.value];
-        const pItem: any = this.eveluate(item, path);
-        let found = false;
-
-        if (pItem instanceof Array) {
-          pItem.map( (p) => {
-            this.pushInList(list, p, {name: displayData});
-          });
-        }else if (typeof pItem === "string") {
-          this.pushInList(list, pItem,{name: displayData});
-        }else if (typeof pItem === "boolean") {
-          this.pushInList(list, (pItem ? "true":"false"),{name: displayData});
-        }else if (pItem) {
-          this.pushInList(list, pItem,{name: displayData});
-        } else {
-          this.pushIfNotContain(list, {name: displayData} );
-        }
-      });
+      if (displayData) {
+        pickPoints.map( (point) => {
+          const path = point.key.split(".");
+          const list = innerMap[point.value];
+          const pItem: any = this.eveluate(item, path);
+          let found = false;
+  
+          if (pItem instanceof Array) {
+            pItem.map( (p) => {
+              this.pushInList(list, p, {name: displayData});
+            });
+          }else {
+            this.pushInList(list, pItem, {name: displayData});
+          }
+        });
+      }
     });
 
     const rootList = [];

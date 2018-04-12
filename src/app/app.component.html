@@ -7,7 +7,7 @@
 <div class="points-maker">
   <label for="dataselection">Select a Data set example</label>
   <select id="dataselection" (change)="visualizeDataSet($event)">
-      <option *ngFor="let i of selectionEntry" [value]="i" [textContent]="i"></option>
+      <option *ngFor="let i of selectionEntry" [value]="i" [textContent]="i" [selected]="selectedEntry == i ? true: null"></option>
     </select>
 <button (click)="displayEntry = true">Add new JSON in dropdown</button>
 </div>

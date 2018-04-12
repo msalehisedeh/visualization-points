@@ -101,7 +101,7 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
       const root = this.findReferenceStructureFrom(this.data);
       const points = this.pointMaker.generatePoints(root, "", true);
       this.interestingPoints = points;
-      this.targetKeys = JSON.parse(JSON.stringify(points));
+      this.targetKeys = this.pointMaker.targetKeysFromGeneratedPoints(points, root);
     }
     this.triggerEvaluation(
       this.sanitize(this.interestingPoints),

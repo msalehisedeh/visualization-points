@@ -19,6 +19,32 @@ var VisualizationPointsMaker = (function () {
         this.points = [];
     }
     /**
+     * @param {?} points
+     * @param {?} root
+     * @return {?}
+     */
+    VisualizationPointsMaker.prototype.targetKeysFromGeneratedPoints = function (points, root) {
+        var /** @type {?} */ targets = [];
+        points.map(function (point) {
+            var /** @type {?} */ path = point.key.split(".");
+            var /** @type {?} */ pItem = root;
+            var /** @type {?} */ foundArray = false;
+            path.map(function (key) {
+                if (key.length === 0 || pItem instanceof Array) {
+                    pItem = undefined;
+                    foundArray = true;
+                }
+                else {
+                    pItem = pItem ? pItem[key] : pItem;
+                }
+            });
+            if (!foundArray) {
+                targets.push(JSON.parse(JSON.stringify(point)));
+            }
+        });
+        return targets;
+    };
+    /**
      * @param {?} root
      * @param {?} path
      * @param {?} clear
@@ -29,30 +55,32 @@ var VisualizationPointsMaker = (function () {
         if (clear) {
             this.points = [];
         }
-        Object.keys(root).map(function (key) {
-            var /** @type {?} */ innerPath = (path.length ? (path + "." + key) : key);
-            if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
-                _this.points.push({
-                    key: innerPath,
-                    value: _this.makeWords(innerPath)
-                });
-            }
-            else if (root[key] instanceof Array) {
-                var /** @type {?} */ node = root[key];
-                if (node.length && !(node[0] instanceof Array) && (typeof node[0] !== "string")) {
-                    _this.generatePoints(node[0], innerPath, false);
-                }
-                else {
+        if (root !== null) {
+            Object.keys(root).map(function (key) {
+                var /** @type {?} */ innerPath = (path.length ? (path + "." + key) : key);
+                if (typeof root[key] === "string" || typeof root[key] === "number" || typeof root[key] === "boolean") {
                     _this.points.push({
                         key: innerPath,
                         value: _this.makeWords(innerPath)
                     });
                 }
-            }
-            else {
-                _this.generatePoints(root[key], innerPath, false);
-            }
-        });
+                else if (root[key] instanceof Array) {
+                    var /** @type {?} */ node = root[key];
+                    if (node.length && !(node[0] instanceof Array) && (typeof node[0] !== "string")) {
+                        _this.generatePoints(node[0], innerPath, false);
+                    }
+                    else {
+                        _this.points.push({
+                            key: innerPath,
+                            value: _this.makeWords(innerPath)
+                        });
+                    }
+                }
+                else {
+                    _this.generatePoints(root[key], innerPath, false);
+                }
+            });
+        }
         return this.points;
     };
     /**
@@ -61,7 +89,7 @@ var VisualizationPointsMaker = (function () {
      */
     VisualizationPointsMaker.prototype.makeWords = function (name) {
         return name
-            .replace(/\./g, ' ')
+            .replace(/\./g, ' ~ ')
             .replace(/([A-Z])/g, ' $1')
             .replace(/-/g, " ")
             .replace(/_/g, " ")
@@ -111,13 +139,23 @@ var VisualizationPointsEvaluator = (function () {
     VisualizationPointsEvaluator.prototype.pushInList = function (list, item, displayData) {
         var _this = this;
         var /** @type {?} */ found = false;
+        item = item instanceof Array ? item.join("") : item;
+        if (typeof item === "string") {
+            item = item.trim().length ? item : "BLANK";
+        }
+        else if (typeof item === "boolean") {
+            item = item ? "true" : "false";
+        }
+        else {
+            item = item === null ? "NULL" : item;
+        }
         list.map(function (subItem) {
             if (subItem.name === item) {
                 found = true;
                 _this.pushIfNotContain(subItem.children, displayData);
             }
         });
-        if (!found) {
+        if (!found && item !== null) {
             list.push({
                 name: item,
                 children: [displayData]
@@ -132,7 +170,7 @@ var VisualizationPointsEvaluator = (function () {
     VisualizationPointsEvaluator.prototype.eveluate = function (pItem, path) {
         var _this = this;
         var _loop_1 = function (i) {
-            pItem = pItem ? pItem[path[i]] : null;
+            pItem = pItem ? pItem[path[i]] : pItem;
             if (pItem instanceof Array) {
                 var /** @type {?} */ list_1 = [];
                 pItem.map(function (item) {
@@ -178,35 +216,27 @@ var VisualizationPointsEvaluator = (function () {
                 var /** @type {?} */ path = point.key.split(".");
                 var /** @type {?} */ pItem = item;
                 path.map(function (key) {
-                    pItem = pItem ? pItem[key] : null;
+                    pItem = pItem ? pItem[key] : pItem;
                 });
-                if (pItem) {
-                    displayData.push(pItem);
-                }
+                pItem = (pItem === null ? "NULL" : pItem);
+                displayData.push(String(pItem));
             });
-            displayData = displayData.join(", ");
-            pickPoints.map(function (point) {
-                var /** @type {?} */ path = point.key.split(".");
-                var /** @type {?} */ list = innerMap[point.value];
-                var /** @type {?} */ pItem = _this.eveluate(item, path);
-                if (pItem instanceof Array) {
-                    pItem.map(function (p) {
-                        _this.pushInList(list, p, { name: displayData });
-                    });
-                }
-                else if (typeof pItem === "string") {
-                    _this.pushInList(list, pItem, { name: displayData });
-                }
-                else if (typeof pItem === "boolean") {
-                    _this.pushInList(list, (pItem ? "true" : "false"), { name: displayData });
-                }
-                else if (pItem) {
-                    _this.pushInList(list, pItem, { name: displayData });
-                }
-                else {
-                    _this.pushIfNotContain(list, { name: displayData });
-                }
-            });
+            displayData = displayData.length ? displayData.join(", ") : undefined;
+            if (displayData) {
+                pickPoints.map(function (point) {
+                    var /** @type {?} */ path = point.key.split(".");
+                    var /** @type {?} */ list = innerMap[point.value];
+                    var /** @type {?} */ pItem = _this.eveluate(item, path);
+                    if (pItem instanceof Array) {
+                        pItem.map(function (p) {
+                            _this.pushInList(list, p, { name: displayData });
+                        });
+                    }
+                    else {
+                        _this.pushInList(list, pItem, { name: displayData });
+                    }
+                });
+            }
         });
         var /** @type {?} */ rootList = [];
         Object.keys(innerMap).map(function (key) {
@@ -315,7 +345,7 @@ var VisualizationPointsComponent = (function () {
             var /** @type {?} */ root = this.findReferenceStructureFrom(this.data);
             var /** @type {?} */ points = this.pointMaker.generatePoints(root, "", true);
             this.interestingPoints = points;
-            this.targetKeys = JSON.parse(JSON.stringify(points));
+            this.targetKeys = this.pointMaker.targetKeysFromGeneratedPoints(points, root);
         }
         this.triggerEvaluation(this.sanitize(this.interestingPoints), this.sanitize(this.targetKeys));
     };
@@ -383,7 +413,7 @@ VisualizationPointsComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-points',
                 template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #ddd;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
             },] },
 ];
 /** @nocollapse */
@@ -442,7 +472,7 @@ VisualizationConfigurationComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-configuration',
                 template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:50%;\n    margin:0;\n    border-radius:5px; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:33.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n"],
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:100%;\n    margin:0;\n    border-radius:5px;\n    background-color:#fefefe; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:24.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n"],
             },] },
 ];
 /** @nocollapse */

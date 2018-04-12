@@ -15,6 +15,7 @@ export class AppComponent {
     "events",
     "products"
   ];
+  selectedEntry = "users";
   selectionContents ={};
   
   myDataSet = [];  
@@ -32,7 +33,9 @@ export class AppComponent {
         this.selectionEntry.push(entryName);
         this.selectionContents[entryName] = JSON.parse(entryJson);
         this.displayEntry = false;
-    }
+        this.selectedEntry = entryName;
+        this.myDataSet = this.selectionContents[entryName];
+      }
   }
   
   onVisualization(event) {
