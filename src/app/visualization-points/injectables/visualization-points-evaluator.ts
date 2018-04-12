@@ -21,7 +21,7 @@ export class VisualizationPointsEvaluator {
     }
   }
 
-  private pushInList(list, item, displayData) {
+  private pushInList(list, item, allowduplicates, displayData) {
     let found = false;
 
     item = item instanceof Array ? item.join("") : item;
@@ -39,7 +39,7 @@ export class VisualizationPointsEvaluator {
         this.pushIfNotContain(subItem.children, displayData);
       }
     });
-    if (!found && item !== null) {
+    if ((allowduplicates || !found) && item !== null) {
       list.push({
         name: item,
         children: [displayData]
@@ -69,7 +69,7 @@ export class VisualizationPointsEvaluator {
             .replace(/^./, (str) => str.toUpperCase());
   }
 
-  evaluatePoints(data: any[], pickPoints: any[], primarys: any[]) {
+  evaluatePoints(data: any[], pickPoints: any[], primarys: any[], allowduplicates) {
 
     const innerMap = {};
 
@@ -101,10 +101,10 @@ export class VisualizationPointsEvaluator {
   
           if (pItem instanceof Array) {
             pItem.map( (p) => {
-              this.pushInList(list, p, {name: displayData});
+              this.pushInList(list, p, allowduplicates, {name: displayData});
             });
           }else {
-            this.pushInList(list, pItem, {name: displayData});
+            this.pushInList(list, pItem, allowduplicates, {name: displayData});
           }
         });
       }

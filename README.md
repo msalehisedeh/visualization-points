@@ -2,11 +2,16 @@
 
 Have you ever wanted to extract information in visually pleasing way from a data set without knowing, in advance, what the data looks like? 
 Have you wondered what it takes to do it? and how long will it take? Well... wonder no more and add this component into your project... 
+And make sure the **data** you are supplying is a list of JSON Objects!
 
 If you want to see the result represented in any other form or fashion, you are welcome to shoot me a message or join me in this effort and make it even easier to snoop into a data of unknown structure...
 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
+
+## Version 0.08
+Occasionally you may want to see duplicate result generated to see relative results for each item in the list. By default, this lag is not set. Try it out and see if you can visually see something meaningful 
+in yor data set.
 
 ## Version 0.0.7
 1- fixed internal logic to handle complex JSON objects. 
@@ -47,9 +52,10 @@ Run `npm install visualization-points` in your application. and do the following
 in your html:
 ```javascript
 <visualization-points
-	[data]="myDataSet"
-  	[enableConfiguration]="true"
-	(onVisualization)="onVisualization($event)"></visualization-points>
+	  [data]="myDataSet"
+    [enableConfiguration]="true"
+    [allowduplicates]="false"
+	  (onVisualization)="onVisualization($event)"></visualization-points>
 ```
 
 in your `.angular-cli.json` file include the following:
@@ -73,7 +79,8 @@ Alternatively, if you already know about the json structure and do not want to s
 <visualization-points
 	[data]="myDataSet"
   	[targetKeys]="myTargetKeys"
-  	[interestingPoints]="myPoints"
+    [interestingPoints]="myPoints"
+    [allowduplicates]="false"
 	  (onVisualization)="onVisualization($event)"></visualization-points>
 
 

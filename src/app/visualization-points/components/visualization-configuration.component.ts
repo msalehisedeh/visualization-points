@@ -22,6 +22,9 @@ export class VisualizationConfigurationComponent {
   @Input("targetKeys")
   targetKeys = [];
 
+  @Input("allowduplicates")
+  allowduplicates = false;
+
   @Output("onchange")
   onchange = new EventEmitter();
 
@@ -36,10 +39,15 @@ export class VisualizationConfigurationComponent {
 
   click(event, item) {
     const input = event.target;
-    item.selected = (input.checked);
+    if (item === "allowduplicates") {
+      this.allowduplicates = input.checked;
+    } else {
+      item.selected = (input.checked);
+    }
     this.onchange.emit({
       points: this.interestingPoints,
-      keys: this.targetKeys
+      keys: this.targetKeys,
+      flag: this.allowduplicates
     });
   }
 }

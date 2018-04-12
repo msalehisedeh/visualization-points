@@ -8,6 +8,7 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     interestingPoints: any[];
     targetKeys: any[];
     data: any;
+    allowduplicates: boolean;
     enableConfiguration: boolean;
     onVisualization: EventEmitter<{}>;
     d3Container: any;

@@ -133,10 +133,11 @@ var VisualizationPointsEvaluator = (function () {
     /**
      * @param {?} list
      * @param {?} item
+     * @param {?} allowduplicates
      * @param {?} displayData
      * @return {?}
      */
-    VisualizationPointsEvaluator.prototype.pushInList = function (list, item, displayData) {
+    VisualizationPointsEvaluator.prototype.pushInList = function (list, item, allowduplicates, displayData) {
         var _this = this;
         var /** @type {?} */ found = false;
         item = item instanceof Array ? item.join("") : item;
@@ -155,7 +156,7 @@ var VisualizationPointsEvaluator = (function () {
                 _this.pushIfNotContain(subItem.children, displayData);
             }
         });
-        if (!found && item !== null) {
+        if ((allowduplicates || !found) && item !== null) {
             list.push({
                 name: item,
                 children: [displayData]
@@ -202,9 +203,10 @@ var VisualizationPointsEvaluator = (function () {
      * @param {?} data
      * @param {?} pickPoints
      * @param {?} primarys
+     * @param {?} allowduplicates
      * @return {?}
      */
-    VisualizationPointsEvaluator.prototype.evaluatePoints = function (data, pickPoints, primarys) {
+    VisualizationPointsEvaluator.prototype.evaluatePoints = function (data, pickPoints, primarys, allowduplicates) {
         var _this = this;
         var /** @type {?} */ innerMap = {};
         pickPoints.map(function (point) {
@@ -229,11 +231,11 @@ var VisualizationPointsEvaluator = (function () {
                     var /** @type {?} */ pItem = _this.eveluate(item, path);
                     if (pItem instanceof Array) {
                         pItem.map(function (p) {
-                            _this.pushInList(list, p, { name: displayData });
+                            _this.pushInList(list, p, allowduplicates, { name: displayData });
                         });
                     }
                     else {
-                        _this.pushInList(list, pItem, { name: displayData });
+                        _this.pushInList(list, pItem, allowduplicates, { name: displayData });
                     }
                 });
             }
@@ -272,6 +274,7 @@ var VisualizationPointsComponent = (function () {
         this.evaluatedPoints = {};
         this.interestingPoints = [];
         this.targetKeys = [];
+        this.allowduplicates = false;
         this.onVisualization = new EventEmitter();
     }
     /**
@@ -297,7 +300,7 @@ var VisualizationPointsComponent = (function () {
     VisualizationPointsComponent.prototype.triggerEvaluation = function (points, primaries) {
         if (points.length && primaries.length) {
             this.d3Container.nativeElement.innerHTML = "";
-            this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries);
+            this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates);
             var /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
             window['initiateD3'](sizedupPoints, "#d3-container");
             this.onVisualization.emit(this.evaluatedPoints);
@@ -405,6 +408,7 @@ var VisualizationPointsComponent = (function () {
      * @return {?}
      */
     VisualizationPointsComponent.prototype.onchange = function (event) {
+        this.allowduplicates = event.flag;
         this.triggerEvaluation(this.sanitize(event.points), this.sanitize(event.keys));
     };
     return VisualizationPointsComponent;
@@ -412,7 +416,7 @@ var VisualizationPointsComponent = (function () {
 VisualizationPointsComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-points',
-                template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
+                template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        [allowduplicates]=\"allowduplicates\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
                 styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
             },] },
 ];
@@ -425,6 +429,7 @@ VisualizationPointsComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
     "data": [{ type: Input, args: ["data",] },],
+    "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
     "enableConfiguration": [{ type: Input, args: ["enableConfiguration",] },],
     "onVisualization": [{ type: Output, args: ["onVisualization",] },],
     "d3Container": [{ type: ViewChild, args: ["d3Container",] },],
@@ -441,6 +446,7 @@ var VisualizationConfigurationComponent = (function () {
         this.renderer = renderer;
         this.interestingPoints = [];
         this.targetKeys = [];
+        this.allowduplicates = false;
         this.onchange = new EventEmitter();
     }
     /**
@@ -460,10 +466,16 @@ var VisualizationConfigurationComponent = (function () {
      */
     VisualizationConfigurationComponent.prototype.click = function (event, item) {
         var /** @type {?} */ input = event.target;
-        item.selected = (input.checked);
+        if (item === "allowduplicates") {
+            this.allowduplicates = input.checked;
+        }
+        else {
+            item.selected = (input.checked);
+        }
         this.onchange.emit({
             points: this.interestingPoints,
-            keys: this.targetKeys
+            keys: this.targetKeys,
+            flag: this.allowduplicates
         });
     };
     return VisualizationConfigurationComponent;
@@ -471,7 +483,7 @@ var VisualizationConfigurationComponent = (function () {
 VisualizationConfigurationComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-configuration',
-                template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>",
+                template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Duplicates In result set:</legend>\n    <label for=\"allowduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"allowduplicates\"\n            id=\"allowduplicates\"\n            [value]=\"allowduplicates\"\n            [checked]=\"allowduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'allowduplicates')\" />\n        <span>Allow Duplicates</span>\n    </label>\n</fieldset>\n",
                 styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:100%;\n    margin:0;\n    border-radius:5px;\n    background-color:#fefefe; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:24.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n"],
             },] },
 ];
@@ -482,6 +494,7 @@ VisualizationConfigurationComponent.ctorParameters = function () { return [
 VisualizationConfigurationComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
+    "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
     "onchange": [{ type: Output, args: ["onchange",] },],
 };
 /**

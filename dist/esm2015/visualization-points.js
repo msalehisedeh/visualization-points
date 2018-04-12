@@ -131,10 +131,11 @@ class VisualizationPointsEvaluator {
     /**
      * @param {?} list
      * @param {?} item
+     * @param {?} allowduplicates
      * @param {?} displayData
      * @return {?}
      */
-    pushInList(list, item, displayData) {
+    pushInList(list, item, allowduplicates, displayData) {
         let /** @type {?} */ found = false;
         item = item instanceof Array ? item.join("") : item;
         if (typeof item === "string") {
@@ -152,7 +153,7 @@ class VisualizationPointsEvaluator {
                 this.pushIfNotContain(subItem.children, displayData);
             }
         });
-        if (!found && item !== null) {
+        if ((allowduplicates || !found) && item !== null) {
             list.push({
                 name: item,
                 children: [displayData]
@@ -193,9 +194,10 @@ class VisualizationPointsEvaluator {
      * @param {?} data
      * @param {?} pickPoints
      * @param {?} primarys
+     * @param {?} allowduplicates
      * @return {?}
      */
-    evaluatePoints(data, pickPoints, primarys) {
+    evaluatePoints(data, pickPoints, primarys, allowduplicates) {
         const /** @type {?} */ innerMap = {};
         pickPoints.map((point) => {
             innerMap[point.value] = [];
@@ -219,11 +221,11 @@ class VisualizationPointsEvaluator {
                     const /** @type {?} */ pItem = this.eveluate(item, path);
                     if (pItem instanceof Array) {
                         pItem.map((p) => {
-                            this.pushInList(list, p, { name: displayData });
+                            this.pushInList(list, p, allowduplicates, { name: displayData });
                         });
                     }
                     else {
-                        this.pushInList(list, pItem, { name: displayData });
+                        this.pushInList(list, pItem, allowduplicates, { name: displayData });
                     }
                 });
             }
@@ -262,6 +264,7 @@ class VisualizationPointsComponent {
         this.evaluatedPoints = {};
         this.interestingPoints = [];
         this.targetKeys = [];
+        this.allowduplicates = false;
         this.onVisualization = new EventEmitter();
     }
     /**
@@ -286,7 +289,7 @@ class VisualizationPointsComponent {
     triggerEvaluation(points, primaries) {
         if (points.length && primaries.length) {
             this.d3Container.nativeElement.innerHTML = "";
-            this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries);
+            this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates);
             const /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
             window['initiateD3'](sizedupPoints, "#d3-container");
             this.onVisualization.emit(this.evaluatedPoints);
@@ -387,6 +390,7 @@ class VisualizationPointsComponent {
      * @return {?}
      */
     onchange(event) {
+        this.allowduplicates = event.flag;
         this.triggerEvaluation(this.sanitize(event.points), this.sanitize(event.keys));
     }
 }
@@ -398,6 +402,7 @@ VisualizationPointsComponent.decorators = [
     <visualization-configuration
         [interestingPoints]="interestingPoints"
         [targetKeys]="targetKeys"
+        [allowduplicates]="allowduplicates"
         (onchange)="onchange($event)"></visualization-configuration>
 </div>
 <div class="d3-container" id="d3-container" #d3Container></div>
@@ -440,6 +445,7 @@ VisualizationPointsComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
     "data": [{ type: Input, args: ["data",] },],
+    "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
     "enableConfiguration": [{ type: Input, args: ["enableConfiguration",] },],
     "onVisualization": [{ type: Output, args: ["onVisualization",] },],
     "d3Container": [{ type: ViewChild, args: ["d3Container",] },],
@@ -457,6 +463,7 @@ class VisualizationConfigurationComponent {
         this.renderer = renderer;
         this.interestingPoints = [];
         this.targetKeys = [];
+        this.allowduplicates = false;
         this.onchange = new EventEmitter();
     }
     /**
@@ -476,10 +483,16 @@ class VisualizationConfigurationComponent {
      */
     click(event, item) {
         const /** @type {?} */ input = event.target;
-        item.selected = (input.checked);
+        if (item === "allowduplicates") {
+            this.allowduplicates = input.checked;
+        }
+        else {
+            item.selected = (input.checked);
+        }
         this.onchange.emit({
             points: this.interestingPoints,
-            keys: this.targetKeys
+            keys: this.targetKeys,
+            flag: this.allowduplicates
         });
     }
 }
@@ -497,6 +510,20 @@ VisualizationConfigurationComponent.decorators = [
         for each age and city reference, you will see the resulting data as name and age values.</span>
 </p>
 <fieldset class="pick-points">
+    <legend>Target Keys:</legend>
+    <label *ngFor="let x of targetKeys; let i = index" [for]="'targetKey' + i">
+        <input
+            type="checkbox"
+            name="targetKey"
+            [id]="'targetKey' + i"
+            [value]="x.value"
+            [checked]="x.selected ? true: null"
+            (keyup)="keyup($event)"
+            (click)="click($event, x)" />
+        <span [textContent]="x.value"></span>
+    </label>
+</fieldset>
+<fieldset class="pick-points">
     <legend>Pick Points:</legend>
     <label *ngFor="let x of interestingPoints; let i = index" [for]="'pickpoint' + i">
         <input
@@ -511,19 +538,20 @@ VisualizationConfigurationComponent.decorators = [
     </label>
 </fieldset>
 <fieldset class="pick-points">
-    <legend>Target Keys:</legend>
-    <label *ngFor="let x of targetKeys; let i = index" [for]="'targetKey' + i">
+    <legend>Duplicates In result set:</legend>
+    <label for="allowduplicates">
         <input
             type="checkbox"
-            name="targetKey"
-            [id]="'targetKey' + i"
-            [value]="x.value"
-            [checked]="x.selected ? true: null"
+            name="allowduplicates"
+            id="allowduplicates"
+            [value]="allowduplicates"
+            [checked]="allowduplicates ? true: null"
             (keyup)="keyup($event)"
-            (click)="click($event, x)" />
-        <span [textContent]="x.value"></span>
+            (click)="click($event, 'allowduplicates')" />
+        <span>Allow Duplicates</span>
     </label>
-</fieldset>`,
+</fieldset>
+`,
                 styles: [`:host{
   -webkit-box-sizing:border-box;
           box-sizing:border-box;
@@ -563,6 +591,7 @@ VisualizationConfigurationComponent.ctorParameters = () => [
 VisualizationConfigurationComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
+    "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
     "onchange": [{ type: Output, args: ["onchange",] },],
 };
 

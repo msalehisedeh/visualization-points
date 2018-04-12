@@ -9,6 +9,20 @@
         for each age and city reference, you will see the resulting data as name and age values.</span>
 </p>
 <fieldset class="pick-points">
+    <legend>Target Keys:</legend>
+    <label *ngFor="let x of targetKeys; let i = index" [for]="'targetKey' + i">
+        <input 
+            type="checkbox" 
+            name="targetKey" 
+            [id]="'targetKey' + i" 
+            [value]="x.value" 
+            [checked]="x.selected ? true: null" 
+            (keyup)="keyup($event)"
+            (click)="click($event, x)" /> 
+        <span [textContent]="x.value"></span>
+    </label>   
+</fieldset>
+<fieldset class="pick-points">
     <legend>Pick Points:</legend>
     <label *ngFor="let x of interestingPoints; let i = index" [for]="'pickpoint' + i">
         <input
@@ -23,16 +37,16 @@
     </label>
 </fieldset>
 <fieldset class="pick-points">
-    <legend>Target Keys:</legend>
-    <label *ngFor="let x of targetKeys; let i = index" [for]="'targetKey' + i">
-        <input 
+    <legend>Duplicates In result set:</legend>
+    <label for="allowduplicates">
+        <input
             type="checkbox" 
-            name="targetKey" 
-            [id]="'targetKey' + i" 
-            [value]="x.value" 
-            [checked]="x.selected ? true: null" 
+            name="allowduplicates" 
+            id="allowduplicates" 
+            [value]="allowduplicates" 
+            [checked]="allowduplicates ? true: null" 
             (keyup)="keyup($event)"
-            (click)="click($event, x)" /> 
-        <span [textContent]="x.value"></span>
-    </label>   
+            (click)="click($event, 'allowduplicates')" />
+        <span>Allow Duplicates</span>
+    </label>
 </fieldset>

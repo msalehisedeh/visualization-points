@@ -17,6 +17,7 @@ export class AppComponent {
   ];
   selectedEntry = "users";
   selectionContents ={};
+  allowduplicates = false;
   
   myDataSet = [];  
   resultingTree = {};
