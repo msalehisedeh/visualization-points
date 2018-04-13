@@ -13,9 +13,26 @@
 </div>
 <div id="entry" *ngIf="displayEntry">
   <a (click)="displayEntry = false;">X</a>
+  <div class="alert" *ngIf="error" [textContent]="error"></div>
   <label for="entryName">Name: <input id="entryName" #entryName /></label>
-  <label for="entryJson">JSON: <textarea id="entryJson" #entryJson cols="40" rows="10"></textarea></label>
-  <button (click)="addDataEntry(entryName.value, entryJson.value)">
+  <label for="pointsOfEntry" *ngIf="pointsOfEntry && pointsOfEntry.length">
+    Dropped in JSON is not an array:
+    <select name="pointsOfEntry" id="pointsOfEntry" (change)="pointOfEntry = $event.target.value">
+      <option value="">Select point of entry</option>
+      <option *ngFor="let x of pointsOfEntry" [value]="x" [textContent]="x"></option>
+    </select>
+  </label>
+  <label for="entryJson">
+    JSON: 
+    <textarea 
+      id="entryJson" 
+      #entryJson 
+      cols="80" 
+      rows="10" 
+      (paste)="onPaste($event)" 
+      [textContent]="sampleJson"></textarea>
+  </label>
+  <button (click)="addDataEntry(entryName.value, entryJson.value)" *ngIf="!pointsOfEntry || pointOfEntry">
   Submit
 </button>
 </div>
@@ -23,6 +40,7 @@
 	[data]="myDataSet"
   [enableConfiguration]="true"
   [allowduplicates]="allowduplicates"
+  [groupduplicates]="groupduplicates"
 	(onVisualization)="onVisualization($event)"></visualization-points>
 
 <table style="width:100%">

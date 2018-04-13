@@ -49,4 +49,15 @@
             (click)="click($event, 'allowduplicates')" />
         <span>Allow Duplicates</span>
     </label>
+    <label for="groupduplicates">
+        <input
+            type="checkbox" 
+            name="groupduplicates" 
+            id="groupduplicates" 
+            [value]="groupduplicates" 
+            [checked]="groupduplicates ? true: null" 
+            (keyup)="keyup($event)"
+            (click)="click($event, 'groupduplicates')" />
+        <span>Group Duplicates</span>
+    </label>
 </fieldset>

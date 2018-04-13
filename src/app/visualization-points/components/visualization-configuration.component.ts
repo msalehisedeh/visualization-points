@@ -25,6 +25,9 @@ export class VisualizationConfigurationComponent {
   @Input("allowduplicates")
   allowduplicates = false;
 
+  @Input("groupduplicates")
+  groupduplicates = false;
+
   @Output("onchange")
   onchange = new EventEmitter();
 
@@ -41,13 +44,18 @@ export class VisualizationConfigurationComponent {
     const input = event.target;
     if (item === "allowduplicates") {
       this.allowduplicates = input.checked;
-    } else {
+      this.groupduplicates = this.allowduplicates ? this.groupduplicates : false;
+    } else if (item === "groupduplicates") {
+      this.groupduplicates = input.checked;
+      this.allowduplicates =  this.groupduplicates ? true : this.allowduplicates;
+    }else {
       item.selected = (input.checked);
     }
     this.onchange.emit({
       points: this.interestingPoints,
       keys: this.targetKeys,
-      flag: this.allowduplicates
+      allowduplicates: this.allowduplicates,
+      groupduplicates: this.groupduplicates
     });
   }
 }

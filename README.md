@@ -9,6 +9,9 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
 
+## Version 0.09
+added ability to group duplicate results togather.. try it out on the live demo on users or products data set and see if it can help you gain new insights into the available data!!
+
 ## Version 0.08
 Occasionally you may want to see duplicate result generated to see relative results for each item in the list. By default, this lag is not set. Try it out and see if you can visually see something meaningful 
 in yor data set.

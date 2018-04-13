@@ -4,6 +4,7 @@ export declare class VisualizationConfigurationComponent {
     interestingPoints: any[];
     targetKeys: any[];
     allowduplicates: boolean;
+    groupduplicates: boolean;
     onchange: EventEmitter<{}>;
     constructor(renderer: Renderer);
     keyup(event: any): void;

@@ -21,8 +21,8 @@ export class VisualizationPointsEvaluator {
     }
   }
 
-  private pushInList(list, item, allowduplicates, displayData) {
-    let found = false;
+  private pushInList(list, item, allowduplicates, groupduplicates, displayData) {
+    let found: any = undefined;
 
     item = item instanceof Array ? item.join("") : item;
     if (typeof item === "string") {
@@ -33,17 +33,22 @@ export class VisualizationPointsEvaluator {
       item = item === null ? "NULL" : item;
     }
 
-    list.map( (subItem) => {
+    list.map( (subItem: any) => {
       if (subItem.name === item) {
-        found = true;
+        found = subItem;
         this.pushIfNotContain(subItem.children, displayData);
       }
     });
-    if ((allowduplicates || !found) && item !== null) {
-      list.push({
-        name: item,
-        children: [displayData]
-      });
+    if ( item !== null ) {
+      if (!found) {
+        list.push({ name: item, children: [displayData] });
+      } else {
+        if (groupduplicates) {
+          found.children.push(displayData);
+        } else if (allowduplicates) {
+          list.push({ name: item, children: [displayData] });
+        }
+      }
     }
   }
 
@@ -69,7 +74,7 @@ export class VisualizationPointsEvaluator {
             .replace(/^./, (str) => str.toUpperCase());
   }
 
-  evaluatePoints(data: any[], pickPoints: any[], primarys: any[], allowduplicates) {
+  evaluatePoints(data: any[], pickPoints: any[], primarys: any[], allowduplicates, groupduplicates) {
 
     const innerMap = {};
 
@@ -101,10 +106,10 @@ export class VisualizationPointsEvaluator {
   
           if (pItem instanceof Array) {
             pItem.map( (p) => {
-              this.pushInList(list, p, allowduplicates, {name: displayData});
+              this.pushInList(list, p, allowduplicates, groupduplicates, {name: displayData});
             });
           }else {
-            this.pushInList(list, pItem, allowduplicates, {name: displayData});
+            this.pushInList(list, pItem, allowduplicates, groupduplicates, {name: displayData});
           }
         });
       }

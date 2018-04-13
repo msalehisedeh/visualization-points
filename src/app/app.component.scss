@@ -18,6 +18,15 @@
     white-space: pre-wrap;
 }
 
+.alert {
+  background-color: #e22;
+  color: #fff;
+  padding: 10px;
+  border: 1px solid #633;
+  border-radius: 5px;
+  margin: 25px 0 10px 0;
+}
+
 #entry {
     width: 90%;
     height: 100%;

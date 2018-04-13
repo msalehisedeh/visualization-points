@@ -9,6 +9,7 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     targetKeys: any[];
     data: any;
     allowduplicates: boolean;
+    groupduplicates: boolean;
     enableConfiguration: boolean;
     onVisualization: EventEmitter<{}>;
     d3Container: any;

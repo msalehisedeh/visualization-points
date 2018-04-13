@@ -36,6 +36,9 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   @Input("allowduplicates")
   allowduplicates = false;
 
+  @Input("groupduplicates")
+  groupduplicates = false;
+  
   @Input("enableConfiguration")
   enableConfiguration: boolean;
 
@@ -58,7 +61,12 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   private triggerEvaluation(points, primaries) {
     if (points.length && primaries.length) {
       this.d3Container.nativeElement.innerHTML = "";
-      this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates);
+      this.evaluatedPoints = this.evaluator.evaluatePoints(
+                                this.data, 
+                                points, 
+                                primaries, 
+                                this.allowduplicates,
+                                this.groupduplicates);
       const sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
       window['initiateD3'](sizedupPoints, "#d3-container");
       this.onVisualization.emit(this.evaluatedPoints);
@@ -147,7 +155,8 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
     return sanitizedPoints;
   }
   onchange(event) {
-    this.allowduplicates = event.flag;
+    this.allowduplicates = event.allowduplicates;
+    this.groupduplicates = event.groupduplicates;
     this.triggerEvaluation(
       this.sanitize(event.points),
       this.sanitize(event.keys)

@@ -132,11 +132,12 @@ class VisualizationPointsEvaluator {
      * @param {?} list
      * @param {?} item
      * @param {?} allowduplicates
+     * @param {?} groupduplicates
      * @param {?} displayData
      * @return {?}
      */
-    pushInList(list, item, allowduplicates, displayData) {
-        let /** @type {?} */ found = false;
+    pushInList(list, item, allowduplicates, groupduplicates, displayData) {
+        let /** @type {?} */ found = undefined;
         item = item instanceof Array ? item.join("") : item;
         if (typeof item === "string") {
             item = item.trim().length ? item : "BLANK";
@@ -149,15 +150,22 @@ class VisualizationPointsEvaluator {
         }
         list.map((subItem) => {
             if (subItem.name === item) {
-                found = true;
+                found = subItem;
                 this.pushIfNotContain(subItem.children, displayData);
             }
         });
-        if ((allowduplicates || !found) && item !== null) {
-            list.push({
-                name: item,
-                children: [displayData]
-            });
+        if (item !== null) {
+            if (!found) {
+                list.push({ name: item, children: [displayData] });
+            }
+            else {
+                if (groupduplicates) {
+                    found.children.push(displayData);
+                }
+                else if (allowduplicates) {
+                    list.push({ name: item, children: [displayData] });
+                }
+            }
         }
     }
     /**
@@ -195,9 +203,10 @@ class VisualizationPointsEvaluator {
      * @param {?} pickPoints
      * @param {?} primarys
      * @param {?} allowduplicates
+     * @param {?} groupduplicates
      * @return {?}
      */
-    evaluatePoints(data, pickPoints, primarys, allowduplicates) {
+    evaluatePoints(data, pickPoints, primarys, allowduplicates, groupduplicates) {
         const /** @type {?} */ innerMap = {};
         pickPoints.map((point) => {
             innerMap[point.value] = [];
@@ -221,11 +230,11 @@ class VisualizationPointsEvaluator {
                     const /** @type {?} */ pItem = this.eveluate(item, path);
                     if (pItem instanceof Array) {
                         pItem.map((p) => {
-                            this.pushInList(list, p, allowduplicates, { name: displayData });
+                            this.pushInList(list, p, allowduplicates, groupduplicates, { name: displayData });
                         });
                     }
                     else {
-                        this.pushInList(list, pItem, allowduplicates, { name: displayData });
+                        this.pushInList(list, pItem, allowduplicates, groupduplicates, { name: displayData });
                     }
                 });
             }
@@ -265,6 +274,7 @@ class VisualizationPointsComponent {
         this.interestingPoints = [];
         this.targetKeys = [];
         this.allowduplicates = false;
+        this.groupduplicates = false;
         this.onVisualization = new EventEmitter();
     }
     /**
@@ -289,7 +299,7 @@ class VisualizationPointsComponent {
     triggerEvaluation(points, primaries) {
         if (points.length && primaries.length) {
             this.d3Container.nativeElement.innerHTML = "";
-            this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates);
+            this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates, this.groupduplicates);
             const /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
             window['initiateD3'](sizedupPoints, "#d3-container");
             this.onVisualization.emit(this.evaluatedPoints);
@@ -390,7 +400,8 @@ class VisualizationPointsComponent {
      * @return {?}
      */
     onchange(event) {
-        this.allowduplicates = event.flag;
+        this.allowduplicates = event.allowduplicates;
+        this.groupduplicates = event.groupduplicates;
         this.triggerEvaluation(this.sanitize(event.points), this.sanitize(event.keys));
     }
 }
@@ -403,6 +414,7 @@ VisualizationPointsComponent.decorators = [
         [interestingPoints]="interestingPoints"
         [targetKeys]="targetKeys"
         [allowduplicates]="allowduplicates"
+        [groupduplicates]="groupduplicates"
         (onchange)="onchange($event)"></visualization-configuration>
 </div>
 <div class="d3-container" id="d3-container" #d3Container></div>
@@ -446,6 +458,7 @@ VisualizationPointsComponent.propDecorators = {
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
     "data": [{ type: Input, args: ["data",] },],
     "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
+    "groupduplicates": [{ type: Input, args: ["groupduplicates",] },],
     "enableConfiguration": [{ type: Input, args: ["enableConfiguration",] },],
     "onVisualization": [{ type: Output, args: ["onVisualization",] },],
     "d3Container": [{ type: ViewChild, args: ["d3Container",] },],
@@ -464,6 +477,7 @@ class VisualizationConfigurationComponent {
         this.interestingPoints = [];
         this.targetKeys = [];
         this.allowduplicates = false;
+        this.groupduplicates = false;
         this.onchange = new EventEmitter();
     }
     /**
@@ -485,6 +499,11 @@ class VisualizationConfigurationComponent {
         const /** @type {?} */ input = event.target;
         if (item === "allowduplicates") {
             this.allowduplicates = input.checked;
+            this.groupduplicates = this.allowduplicates ? this.groupduplicates : false;
+        }
+        else if (item === "groupduplicates") {
+            this.groupduplicates = input.checked;
+            this.allowduplicates = this.groupduplicates ? true : this.allowduplicates;
         }
         else {
             item.selected = (input.checked);
@@ -492,7 +511,8 @@ class VisualizationConfigurationComponent {
         this.onchange.emit({
             points: this.interestingPoints,
             keys: this.targetKeys,
-            flag: this.allowduplicates
+            allowduplicates: this.allowduplicates,
+            groupduplicates: this.groupduplicates
         });
     }
 }
@@ -550,6 +570,17 @@ VisualizationConfigurationComponent.decorators = [
             (click)="click($event, 'allowduplicates')" />
         <span>Allow Duplicates</span>
     </label>
+    <label for="groupduplicates">
+        <input
+            type="checkbox"
+            name="groupduplicates"
+            id="groupduplicates"
+            [value]="groupduplicates"
+            [checked]="groupduplicates ? true: null"
+            (keyup)="keyup($event)"
+            (click)="click($event, 'groupduplicates')" />
+        <span>Group Duplicates</span>
+    </label>
 </fieldset>
 `,
                 styles: [`:host{
@@ -592,6 +623,7 @@ VisualizationConfigurationComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
     "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
+    "groupduplicates": [{ type: Input, args: ["groupduplicates",] },],
     "onchange": [{ type: Output, args: ["onchange",] },],
 };
 
