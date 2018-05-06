@@ -39,6 +39,15 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   @Input("groupduplicates")
   groupduplicates = false;
   
+  @Input("tooltipEnabled")
+  tooltipEnabled = false;
+
+  @Input("directionality")
+  directionality = "L2R";
+
+  @Input("nodeType")
+  nodeType = "Plain";
+
   @Input("enableConfiguration")
   enableConfiguration: boolean;
 
@@ -68,7 +77,12 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
                                 this.allowduplicates,
                                 this.groupduplicates);
       const sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-      window['initiateD3'](sizedupPoints, "#d3-container");
+      window['initiateD3'](sizedupPoints, {
+        tooltipEnabled: this.tooltipEnabled, 
+        directionality: this.directionality, 
+        displayNodeType: this.nodeType, 
+        targetDiv: "#d3-container"
+      });
       this.onVisualization.emit(this.evaluatedPoints);
     } else {
       this.d3Container.nativeElement.innerHTML = "";
@@ -157,6 +171,9 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   onchange(event) {
     this.allowduplicates = event.allowduplicates;
     this.groupduplicates = event.groupduplicates;
+    this.directionality = event.directionality;
+    this.nodeType = event.nodeType;
+    this.tooltipEnabled = event.tooltipEnabled;
     this.triggerEvaluation(
       this.sanitize(event.points),
       this.sanitize(event.keys)

@@ -190,12 +190,13 @@ var VisualizationPointsEvaluator = (function () {
     /**
      * @param {?} list
      * @param {?} item
+     * @param {?} node
      * @param {?} allowduplicates
      * @param {?} groupduplicates
      * @param {?} displayData
      * @return {?}
      */
-    VisualizationPointsEvaluator.prototype.pushInList = function (list, item, allowduplicates, groupduplicates, displayData) {
+    VisualizationPointsEvaluator.prototype.pushInList = function (list, item, node, allowduplicates, groupduplicates, displayData) {
         var _this = this;
         var /** @type {?} */ found = undefined;
         item = item instanceof Array ? item.join("") : item;
@@ -216,14 +217,14 @@ var VisualizationPointsEvaluator = (function () {
         });
         if (item !== null) {
             if (!found) {
-                list.push({ name: item, children: [displayData] });
+                list.push({ name: item, data: node, children: [displayData] });
             }
             else {
                 if (groupduplicates) {
                     found.children.push(displayData);
                 }
                 else if (allowduplicates) {
-                    list.push({ name: item, children: [displayData] });
+                    list.push({ name: item, data: node, children: [displayData] });
                 }
             }
         }
@@ -249,6 +250,31 @@ var VisualizationPointsEvaluator = (function () {
         for (var /** @type {?} */ i = 0; i < path.length; i++) {
             var state_1 = _loop_1(/** @type {?} */ i);
             if (state_1 === "break")
+                break;
+        }
+        return pItem;
+    };
+    /**
+     * @param {?} pItem
+     * @param {?} path
+     * @return {?}
+     */
+    VisualizationPointsEvaluator.prototype.eveluatedNode = function (pItem, path) {
+        var _this = this;
+        var _loop_2 = function (i) {
+            pItem = pItem ? pItem[path[i]] : pItem;
+            if (pItem instanceof Array) {
+                var /** @type {?} */ list_2 = [];
+                pItem.map(function (item) {
+                    list_2.push(_this.eveluate(item, path.slice(i + 1, path.length)));
+                });
+                pItem = list_2;
+                return "break";
+            }
+        };
+        for (var /** @type {?} */ i = 0; i < path.length - 1; i++) {
+            var state_2 = _loop_2(/** @type {?} */ i);
+            if (state_2 === "break")
                 break;
         }
         return pItem;
@@ -295,13 +321,14 @@ var VisualizationPointsEvaluator = (function () {
                     var /** @type {?} */ path = point.key.split(".");
                     var /** @type {?} */ list = innerMap[point.value];
                     var /** @type {?} */ pItem = _this.eveluate(item, path);
+                    var /** @type {?} */ nodes = _this.eveluatedNode(item, path);
                     if (pItem instanceof Array) {
-                        pItem.map(function (p) {
-                            _this.pushInList(list, p, allowduplicates, groupduplicates, { name: displayData });
+                        pItem.map(function (p, index) {
+                            _this.pushInList(list, p, nodes[index], allowduplicates, groupduplicates, { name: displayData });
                         });
                     }
                     else {
-                        _this.pushInList(list, pItem, allowduplicates, groupduplicates, { name: displayData });
+                        _this.pushInList(list, pItem, nodes, allowduplicates, groupduplicates, { name: displayData });
                     }
                 });
             }
@@ -342,6 +369,9 @@ var VisualizationPointsComponent = (function () {
         this.targetKeys = [];
         this.allowduplicates = false;
         this.groupduplicates = false;
+        this.tooltipEnabled = false;
+        this.directionality = "L2R";
+        this.nodeType = "Plain";
         this.onVisualization = new core.EventEmitter();
     }
     /**
@@ -369,7 +399,12 @@ var VisualizationPointsComponent = (function () {
             this.d3Container.nativeElement.innerHTML = "";
             this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates, this.groupduplicates);
             var /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-            window['initiateD3'](sizedupPoints, "#d3-container");
+            window['initiateD3'](sizedupPoints, {
+                tooltipEnabled: this.tooltipEnabled,
+                directionality: this.directionality,
+                displayNodeType: this.nodeType,
+                targetDiv: "#d3-container"
+            });
             this.onVisualization.emit(this.evaluatedPoints);
         }
         else {
@@ -477,6 +512,9 @@ var VisualizationPointsComponent = (function () {
     VisualizationPointsComponent.prototype.onchange = function (event) {
         this.allowduplicates = event.allowduplicates;
         this.groupduplicates = event.groupduplicates;
+        this.directionality = event.directionality;
+        this.nodeType = event.nodeType;
+        this.tooltipEnabled = event.tooltipEnabled;
         this.triggerEvaluation(this.sanitize(event.points), this.sanitize(event.keys));
     };
     return VisualizationPointsComponent;
@@ -485,7 +523,7 @@ VisualizationPointsComponent.decorators = [
     { type: core.Component, args: [{
                 selector: 'visualization-points',
                 template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        [allowduplicates]=\"allowduplicates\"\n        [groupduplicates]=\"groupduplicates\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node rect{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep div.tooltip{\n    position:absolute;\n    padding:5px;\n    font:12px sans-serif;\n    background:#cfcfcf;\n    border:1px solid #3a3939;\n    border-radius:4px;\n    pointer-events:none; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
             },] },
 ];
 /** @nocollapse */
@@ -499,6 +537,9 @@ VisualizationPointsComponent.propDecorators = {
     "data": [{ type: core.Input, args: ["data",] },],
     "allowduplicates": [{ type: core.Input, args: ["allowduplicates",] },],
     "groupduplicates": [{ type: core.Input, args: ["groupduplicates",] },],
+    "tooltipEnabled": [{ type: core.Input, args: ["tooltipEnabled",] },],
+    "directionality": [{ type: core.Input, args: ["directionality",] },],
+    "nodeType": [{ type: core.Input, args: ["nodeType",] },],
     "enableConfiguration": [{ type: core.Input, args: ["enableConfiguration",] },],
     "onVisualization": [{ type: core.Output, args: ["onVisualization",] },],
     "d3Container": [{ type: core.ViewChild, args: ["d3Container",] },],
@@ -516,6 +557,9 @@ var VisualizationConfigurationComponent = (function () {
         this.interestingPoints = [];
         this.targetKeys = [];
         this.allowduplicates = false;
+        this.tooltipEnabled = false;
+        this.directionality = "L2R";
+        this.nodeType = "Plain";
         this.groupduplicates = false;
         this.onchange = new core.EventEmitter();
     }
@@ -528,6 +572,22 @@ var VisualizationConfigurationComponent = (function () {
         if (code === 13) {
             this.renderer.invokeElementMethod(event.target, "click");
         }
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    VisualizationConfigurationComponent.prototype.chaneDirectionality = function (event) {
+        this.directionality = event.target.value;
+        this.emitChange();
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    VisualizationConfigurationComponent.prototype.changeNodeType = function (event) {
+        this.nodeType = event.target.value;
+        this.emitChange();
     };
     /**
      * @param {?} event
@@ -544,13 +604,27 @@ var VisualizationConfigurationComponent = (function () {
             this.groupduplicates = input.checked;
             this.allowduplicates = this.groupduplicates ? true : this.allowduplicates;
         }
+        else if (item === "tooltipEnabled") {
+            this.tooltipEnabled = input.checked;
+        }
         else {
             item.selected = (input.checked);
         }
+        this.emitChange();
+    };
+    /**
+     * @return {?}
+     */
+    VisualizationConfigurationComponent.prototype.emitChange = function () {
         this.onchange.emit({
             points: this.interestingPoints,
             keys: this.targetKeys,
+            directionality: this.directionality,
+            // L2R, R2T, TD - Left 2 Right, R 2 L, Top Down.
+            nodeType: this.nodeType,
+            // Plain, Rectangle, Cricle
             allowduplicates: this.allowduplicates,
+            tooltipEnabled: this.tooltipEnabled,
             groupduplicates: this.groupduplicates
         });
     };
@@ -559,8 +633,8 @@ var VisualizationConfigurationComponent = (function () {
 VisualizationConfigurationComponent.decorators = [
     { type: core.Component, args: [{
                 selector: 'visualization-configuration',
-                template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Duplicates In result set:</legend>\n    <label for=\"allowduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"allowduplicates\"\n            id=\"allowduplicates\"\n            [value]=\"allowduplicates\"\n            [checked]=\"allowduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'allowduplicates')\" />\n        <span>Allow Duplicates</span>\n    </label>\n    <label for=\"groupduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"groupduplicates\"\n            id=\"groupduplicates\"\n            [value]=\"groupduplicates\"\n            [checked]=\"groupduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'groupduplicates')\" />\n        <span>Group Duplicates</span>\n    </label>\n</fieldset>\n",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:100%;\n    margin:0;\n    border-radius:5px;\n    background-color:#fefefe; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:24.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n"],
+                template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points default\">\n    <legend>Presentation:</legend>\n    <label for=\"directionality\">Directionality:</label>\n    <select name=\"directionality\"\n            id=\"directionality\"\n            (change)=\"chaneDirectionality($event)\">\n        <option value=\"L2R\">Left to Right</option>\n        <option value=\"R2L\">Right to Left</option>\n        <option value=\"TD\">Top Down</option>\n    </select>\n    <label for=\"nodeType\">Node Type:</label>\n    <select name=\"nodeType\"\n            id=\"nodeType\"\n            (change)=\"changeNodeType($event)\">\n        <option value=\"Plain\">Plain</option>\n        <option value=\"Rectangle\">Rectangle</option>\n        <option value=\"Circle\">Circle</option>\n    </select>\n    <label for=\"tooltip\">\n        <input\n            type=\"checkbox\"\n            name=\"tooltip\"\n            id=\"tooltip\"\n            [checked]=\"tooltipEnabled ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'tooltipEnabled')\" />\n        <span>Enable Tool tip</span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Duplicates In result set:</legend>\n    <label for=\"allowduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"allowduplicates\"\n            id=\"allowduplicates\"\n            [value]=\"allowduplicates\"\n            [checked]=\"allowduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'allowduplicates')\" />\n        <span>Allow Duplicates</span>\n    </label>\n    <label for=\"groupduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"groupduplicates\"\n            id=\"groupduplicates\"\n            [value]=\"groupduplicates\"\n            [checked]=\"groupduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'groupduplicates')\" />\n        <span>Group Duplicates</span>\n    </label>\n</fieldset>\n",
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:100%;\n    margin:0;\n    border-radius:5px;\n    background-color:#fefefe; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:24.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n    :host .pick-points.default label{\n      width:15%;\n      text-align:right; }\n"],
             },] },
 ];
 /** @nocollapse */
@@ -571,6 +645,9 @@ VisualizationConfigurationComponent.propDecorators = {
     "interestingPoints": [{ type: core.Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: core.Input, args: ["targetKeys",] },],
     "allowduplicates": [{ type: core.Input, args: ["allowduplicates",] },],
+    "tooltipEnabled": [{ type: core.Input, args: ["tooltipEnabled",] },],
+    "directionality": [{ type: core.Input, args: ["directionality",] },],
+    "nodeType": [{ type: core.Input, args: ["nodeType",] },],
     "groupduplicates": [{ type: core.Input, args: ["groupduplicates",] },],
     "onchange": [{ type: core.Output, args: ["onchange",] },],
 };

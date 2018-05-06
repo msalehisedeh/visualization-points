@@ -35,13 +35,19 @@ export class AppComponent {
   }
 
   addDataEntry(entryName , entryJson) {
-    if (entryName.length && entryJson.length){
-      const entry = JSON.parse(entryJson);
-      this.selectionEntry.push(entryName);
-      this.selectionContents[entryName] = (this.pointsOfEntry && this.pointOfEntry) ? entry[this.pointOfEntry]: entry;
-      this.displayEntry = false;
-      this.selectedEntry = entryName;
-      this.myDataSet = this.selectionContents[entryName];
+    if (entryName.length && entryJson.length) {
+      try {
+        const entry = JSON.parse(entryJson);
+        this.selectionEntry.push(entryName);
+        this.selectionContents[entryName] = (this.pointsOfEntry && this.pointOfEntry) ? entry[this.pointOfEntry]: entry;
+        this.displayEntry = false;
+        this.selectedEntry = entryName;
+        this.myDataSet = this.selectionContents[entryName];
+      } catch(e) {
+        this.error = "We are unable to validate JSON data. Please clear text and try again!";
+      }
+    } else {
+      this.error = "Please enter JSON data and a name for it to be in the dropdown!";
     }
   }
 

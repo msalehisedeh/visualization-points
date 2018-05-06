@@ -4,7 +4,7 @@
     Welcome to {{ title }}!
   </h1>
 </div>
-<div class="points-maker">
+<div class="points-maker" *ngIf="!displayEntry">
   <label for="dataselection">Select a Data set example</label>
   <select id="dataselection" (change)="visualizeDataSet($event)">
       <option *ngFor="let i of selectionEntry" [value]="i" [textContent]="i" [selected]="selectedEntry == i ? true: null"></option>
@@ -13,6 +13,7 @@
 </div>
 <div id="entry" *ngIf="displayEntry">
   <a (click)="displayEntry = false;">X</a>
+  <div class="info" *ngIf="!error">Please drop in JSON data and select a name for it to be added in dropdown.</div>
   <div class="alert" *ngIf="error" [textContent]="error"></div>
   <label for="entryName">Name: <input id="entryName" #entryName /></label>
   <label for="pointsOfEntry" *ngIf="pointsOfEntry && pointsOfEntry.length">
@@ -36,14 +37,14 @@
   Submit
 </button>
 </div>
-<visualization-points
+<visualization-points *ngIf="!displayEntry"
 	[data]="myDataSet"
   [enableConfiguration]="true"
   [allowduplicates]="allowduplicates"
   [groupduplicates]="groupduplicates"
 	(onVisualization)="onVisualization($event)"></visualization-points>
 
-<table style="width:100%">
+<table style="width:100%" *ngIf="!displayEntry">
   <thead>
     <th>Original Data</th>
     <th>Transformed Data</th>
@@ -55,6 +56,3 @@
     </tr>
   </tbody>
 </table>   
-
-
-

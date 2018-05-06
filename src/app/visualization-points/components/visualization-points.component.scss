@@ -18,9 +18,24 @@
     fill: #fff;
     stroke: steelblue;
     stroke-width: 1.5px;
-}
+  }
+  ::ng-deep .node rect {
+    cursor: pointer;
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
+  ::ng-deep div.tooltip {	
+    position: absolute;			
+    padding: 5px;				
+    font: 12px sans-serif;		
+    background: #cfcfcf;	
+    border: 1px solid #3a3939;		
+    border-radius: 4px;			
+    pointer-events: none;			
+  }
   
-::ng-deep .node text {
+  ::ng-deep .node text {
     font-size: 11px;
     font-weight: bold;
   }

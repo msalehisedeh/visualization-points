@@ -21,7 +21,7 @@ export class VisualizationPointsEvaluator {
     }
   }
 
-  private pushInList(list, item, allowduplicates, groupduplicates, displayData) {
+  private pushInList(list, item, node, allowduplicates, groupduplicates, displayData) {
     let found: any = undefined;
 
     item = item instanceof Array ? item.join("") : item;
@@ -41,12 +41,12 @@ export class VisualizationPointsEvaluator {
     });
     if ( item !== null ) {
       if (!found) {
-        list.push({ name: item, children: [displayData] });
+        list.push({ name: item, data: node, children: [displayData] });
       } else {
         if (groupduplicates) {
           found.children.push(displayData);
         } else if (allowduplicates) {
-          list.push({ name: item, children: [displayData] });
+          list.push({ name: item, data: node, children: [displayData] });
         }
       }
     }
@@ -54,6 +54,20 @@ export class VisualizationPointsEvaluator {
 
   private eveluate( pItem:any, path: any[]) {
     for (let i = 0; i < path.length; i++) {
+      pItem = pItem ? pItem[path[i]] : pItem;
+      if (pItem instanceof Array) {
+        const list = [];
+        pItem.map( (item) => {
+          list.push(this.eveluate(item, path.slice(i+1,path.length)));
+        });
+        pItem = list;
+        break;
+      }
+    }
+    return pItem;
+  }
+  private eveluatedNode( pItem:any, path: any[]) {
+    for (let i = 0; i < path.length - 1; i++) {
       pItem = pItem ? pItem[path[i]] : pItem;
       if (pItem instanceof Array) {
         const list = [];
@@ -102,14 +116,15 @@ export class VisualizationPointsEvaluator {
           const path = point.key.split(".");
           const list = innerMap[point.value];
           const pItem: any = this.eveluate(item, path);
+          const nodes: any = this.eveluatedNode(item, path);
           let found = false;
   
           if (pItem instanceof Array) {
-            pItem.map( (p) => {
-              this.pushInList(list, p, allowduplicates, groupduplicates, {name: displayData});
+            pItem.map( (p, index) => {
+              this.pushInList(list, p, nodes[index], allowduplicates, groupduplicates, {name: displayData});
             });
           }else {
-            this.pushInList(list, pItem, allowduplicates, groupduplicates, {name: displayData});
+            this.pushInList(list, pItem, nodes, allowduplicates, groupduplicates, {name: displayData});
           }
         });
       }

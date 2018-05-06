@@ -25,6 +25,15 @@ export class VisualizationConfigurationComponent {
   @Input("allowduplicates")
   allowduplicates = false;
 
+  @Input("tooltipEnabled")
+  tooltipEnabled = false;
+
+  @Input("directionality")
+  directionality = "L2R";
+
+  @Input("nodeType")
+  nodeType = "Plain";
+
   @Input("groupduplicates")
   groupduplicates = false;
 
@@ -40,6 +49,16 @@ export class VisualizationConfigurationComponent {
 		}
   }
 
+  chaneDirectionality(event) {
+    this.directionality = event.target.value;
+    this.emitChange();
+  }
+
+  changeNodeType(event) {
+    this.nodeType = event.target.value;
+    this.emitChange();
+  }
+
   click(event, item) {
     const input = event.target;
     if (item === "allowduplicates") {
@@ -48,13 +67,21 @@ export class VisualizationConfigurationComponent {
     } else if (item === "groupduplicates") {
       this.groupduplicates = input.checked;
       this.allowduplicates =  this.groupduplicates ? true : this.allowduplicates;
-    }else {
+    } else if (item === "tooltipEnabled") {
+      this.tooltipEnabled = input.checked;
+    } else {
       item.selected = (input.checked);
     }
+    this.emitChange();
+  }
+  private emitChange() {
     this.onchange.emit({
       points: this.interestingPoints,
       keys: this.targetKeys,
+      directionality: this.directionality, // L2R, R2T, TD - Left 2 Right, R 2 L, Top Down.
+      nodeType: this.nodeType, // Plain, Rectangle, Cricle
       allowduplicates: this.allowduplicates,
+      tooltipEnabled: this.tooltipEnabled,
       groupduplicates: this.groupduplicates
     });
   }

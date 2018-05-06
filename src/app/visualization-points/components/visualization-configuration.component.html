@@ -36,6 +36,35 @@
         <span [textContent]="x.value"></span>
     </label>
 </fieldset>
+<fieldset class="pick-points default">
+    <legend>Presentation:</legend>
+    <label for="directionality">Directionality:</label>
+    <select name="directionality" 
+            id="directionality" 
+            (change)="chaneDirectionality($event)">
+        <option value="L2R">Left to Right</option>
+        <option value="R2L">Right to Left</option>
+        <option value="TD">Top Down</option>
+    </select>
+    <label for="nodeType">Node Type:</label>
+    <select name="nodeType" 
+            id="nodeType" 
+            (change)="changeNodeType($event)">
+        <option value="Plain">Plain</option>
+        <option value="Rectangle">Rectangle</option>
+        <option value="Circle">Circle</option>
+    </select>
+    <label for="tooltip">
+        <input
+            type="checkbox" 
+            name="tooltip" 
+            id="tooltip" 
+            [checked]="tooltipEnabled ? true: null" 
+            (keyup)="keyup($event)"
+            (click)="click($event, 'tooltipEnabled')" />
+        <span>Enable Tool tip</span>
+    </label>
+</fieldset>
 <fieldset class="pick-points">
     <legend>Duplicates In result set:</legend>
     <label for="allowduplicates">

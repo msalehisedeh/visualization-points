@@ -1,6 +1,6 @@
 {
   "name": "visualization-points",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -11,13 +11,22 @@
   },
   "private": false,
   "keywords": [
+    "angular",
     "d3",
+    "tree",
     "visualization",
+    "configurable",
+    "flexible",
+    "auto generated",
     "svg",
     "animation",
     "canvas",
-    "angular",
-    "data mining"
+    "data",
+    "data mining",
+    "mining",
+    "investigate",
+    "poke",
+    "search"
   ],
   "dependencies": {
     "@angular/common": "^5.0.0 || ^4.0.0 || ^2.0.0",

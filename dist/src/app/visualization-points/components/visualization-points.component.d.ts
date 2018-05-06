@@ -10,6 +10,9 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     data: any;
     allowduplicates: boolean;
     groupduplicates: boolean;
+    tooltipEnabled: boolean;
+    directionality: string;
+    nodeType: string;
     enableConfiguration: boolean;
     onVisualization: EventEmitter<{}>;
     d3Container: any;

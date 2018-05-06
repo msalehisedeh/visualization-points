@@ -6040,6 +6040,9 @@ function d3_layout_treemapPad(node, padding) {
 })();
 
 var root;
+var tooltip;
+var directionality; 
+var displayNodeType
 var vis;
 var mySvg;
 var m = [5, 10, 5, 10],
@@ -6050,7 +6053,7 @@ var m = [5, 10, 5, 10],
 var tree = d3.layout.tree().size([h, w]);
 
 var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.y, d.x]; });
+    .projection(function(d) { return directionality === "TD" ? [d.x, d.y] : [d.y, d.x]; });
 
 function nodeCount(children, counter) {
   if (children) {
@@ -6079,24 +6082,52 @@ function depthCount(children){
 }
 function resize(rootNode) {
   var depth = depthCount(rootNode.children);
-  var height = 100 + (nodeCount(rootNode.children, 0) * 22);
-  var width = depth < 4 ? 1000 : depth * 400;
 
-  w = width - m[1] - m[3];
-  h = height - m[0] - m[2];
-
-  tree.size([height, width]);
-  mySvg.attr("width", width).attr("height",height);
-
-  rootNode.x0 = h / 2;
-  rootNode.y0 = 0;
+  if (directionality === "TD") {
+    var width =  depth < 4 ? 800 : 300 + (nodeCount(rootNode.children, 0) * 22);
+    var height = depth < 4 ? 800 : depth * 400;
   
+    w = width - m[1] - m[3];
+    h = height - m[0] - m[2];
+  
+    tree.size([height, width]);
+    mySvg.attr("width", width).attr("height",height);
+  
+    rootNode.x0 = w / 2;
+    rootNode.y0 = 0;
+  } else {
+    var height = 100 + (nodeCount(rootNode.children, 0) * 22);
+    var width = depth < 4 ? 1000 : depth * 400;
+  
+    w = width - m[1] - m[3];
+    h = height - m[0] - m[2];
+  
+    tree.size([height, width]);
+    mySvg.attr("width", width).attr("height",height);
+  
+    if (directionality === "L2R") {
+      rootNode.x0 = h / 2;
+      rootNode.y0 = 0;
+    } else if (directionality === "R2L") {
+      rootNode.x0 = h / 2;
+      rootNode.y0 = w;
+    }
+  }
   return rootNode;
 }
-function initiateD3(rootNode, targetDiv) {
+function initiateD3(rootNode, config) {
 
-  mySvg = d3.select(targetDiv).append("svg:svg");
-  vis = mySvg.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+  directionality = config.directionality; 
+  displayNodeType = config.displayNodeType;
+  if (config.tooltipEnabled) {
+    tooltip = d3.select(config.targetDiv).append("div").attr("class", "tooltip").style("opacity", 0);
+  }
+  mySvg = d3.select(config.targetDiv).append("svg:svg");
+  if (directionality === "TD") {
+    vis = mySvg.append("svg:g").attr("transform", "translate(" + m[0] + "," + m[3] + ")");
+  } else {
+    vis = mySvg.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+  }
   root = resize(rootNode);
 
   update(root);
@@ -6117,57 +6148,207 @@ function update(source) {
 
   // Compute the new tree layout.
   var nodes = tree.nodes(root).reverse();
-
+  
   // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * 180; });
+  if (directionality === "L2R") {
+    nodes.forEach(function(d) { d.y = d.depth * 180; });
+  } else if (directionality === "R2L") {
+    nodes.forEach(function(d) { d.y = w - d.depth * 180; });
+  } else {
+    nodes.forEach(function(d) { d.y = d.depth * 100; });
+  }
 
   // Update the nodes…
   var node = vis.selectAll("g.node")
-      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+  .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("svg:g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .attr("transform", function(d) { 
+        return directionality === "TD" ? 
+                    "translate(" + source.x0 + "," + source.y0 + ")" :
+                    "translate(" + source.y0 + "," + source.x0 + ")"; 
+      })
+      .on("mouseover", function(d) {
+        if (tooltip && d.data) {
+          var content = "";
+          var p = Object.keys(d.data);
+          for (var i = 0; i < p.length; i++) {
+            content += "<strong>" + p[i] + ": </strong>" + d.data[p[i]] + "<br/>";
+          }
+          tooltip.html(content);	
+          tooltip.transition()		
+              .duration(200)		
+              .style("opacity", .9);		
+          tooltip.style("left", (d3.event.pageX - 100) + "px")		
+              .style("top", (d3.event.pageY - 100) + "px");						
+        }
+      })
+      .on("mouseout", function(d) {
+        if (tooltip && d.data) {
+          tooltip.transition().duration(500).style("opacity", 0);	
+        }
+      })
       .on("click", function(d) { 
         toggle(d); 
         update(d);
       });
 
-  nodeEnter.append("svg:circle")
-      .attr("r", 1e-6)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+  if (displayNodeType === "Rectangle") {
+    nodeEnter.append("svg:rect")
+      .attr("width", 36)
+      .attr("height", 22)
+      .attr("x", function(d) { return  -18 })
+      .attr("y", function(d) { return  -11 })
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .style("fill", function (d) {
+        return d._children ? "lightsteelblue" : "#fff";
+      });
+    if (directionality === "L2R") {
+      nodeEnter.append("svg:text")
+      .attr("y", ".35em")
+      .attr("text-anchor", "middle")
+      .text(function (d) {return d.name;});
+    } else if (directionality === "R2L") {
+      nodeEnter.append("svg:text")
+      .attr("y", ".35em")
+      .attr("text-anchor", "middle")
+      .text(function(d) { return d.name; });
+    } else {
+      nodeEnter.append("svg:text")
+        .attr("y", ".35em")
+        .attr("text-anchor", "middle")
+        .text(function(d) { return d.name; });
+    }
+  } else if (displayNodeType === "Circle") {
+    nodeEnter.append("svg:circle")
+      .attr("x", function(d) { return  -18 })
+      .attr("y", function(d) { return  -11 })
+      .attr("r", 18)
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .style("fill", function (d) {
+        return d._children ? "lightsteelblue" : "#fff";
+      });
 
-  nodeEnter.append("svg:text")
-      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6);
+      if (directionality === "L2R") {
+        nodeEnter.append("svg:text")
+        .attr("y", ".35em")
+        .attr("text-anchor", "middle")
+        .text(function (d) {return d.name;});
+      } else if (directionality === "R2L") {
+        nodeEnter.append("svg:text")
+          .attr("y", ".35em")
+          .attr("text-anchor", "middle")
+          .text(function(d) { return d.name; });
+      } else {
+        nodeEnter.append("svg:text")
+          .attr("y", ".35em")
+          .attr("text-anchor", "middle")
+          .text(function(d) { return d.name; });
+      }
+    } else {
+    nodeEnter.append("svg:circle")
+    .attr("r", 1e-6)
+    .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+    if (directionality === "L2R") {
+      nodeEnter.append("svg:text")
+        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+        .attr("dy", ".35em")
+        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+        .text(function(d) { return d.name; })
+        .style("fill-opacity", 1e-6);
+    } else if (directionality === "R2L") {
+      nodeEnter.append("svg:text")
+        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+        .attr("dy", ".35em")
+        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+        .text(function(d) { return d.name; })
+        .style("fill-opacity", 1e-6);
+    } else {
+      nodeEnter.append("svg:text")
+        .attr("y", function(d) { return d.children || d._children ? -18 : 18; })
+        .attr("dy", ".35em")
+        .attr("text-anchor", function(d) { return "middle"; })
+        .text(function(d) { return d.name; })
+        .style("fill-opacity", 1e-6);
+    }
+  }
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+      .attr("transform", function(d) { 
+        return directionality === "TD" ? 
+                  "translate(" + d.x + "," + d.y + ")" :
+                  "translate(" + d.y + "," + d.x + ")"; 
+      });
 
-  nodeUpdate.select("circle")
+  if (displayNodeType === "Rectangle") {
+    nodeUpdate.select("rect")
+        .attr("width", 36)
+        .attr("height", 22)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .style("fill", function (d) {
+        return d._children ? "lightsteelblue" : "#fff";
+    });
+
+    nodeUpdate.select("text").style("fill-opacity", 1);
+  } else if (displayNodeType === "Circle") {
+    nodeUpdate.select("rect")
+        .attr("r", 18)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .style("fill", function (d) {
+        return d._children ? "lightsteelblue" : "#fff";
+    });
+
+    nodeUpdate.select("text").style("fill-opacity", 1);
+  } else {
+    nodeUpdate.select("circle")
       .attr("r", 4.5)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-  nodeUpdate.select("text")
-      .style("fill-opacity", 1);
+    nodeUpdate.select("text").style("fill-opacity", 1);
+  }
 
   // Transition exiting nodes to the parent's new position.
   var nodeExit = node.exit().transition()
       .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+      .attr("transform", function(d) { 
+        return directionality === "TD" ? 
+            "translate(" + source.x + "," + source.y + ")" :
+            "translate(" + source.y + "," + source.x + ")";; 
+      })
       .remove();
 
-  nodeExit.select("circle")
-      .attr("r", 1e-6);
+  if (displayNodeType === "Rectangle") {
+    nodeExit.select("rect")
+        .attr("width", 36)
+        .attr("height", 22)
+      //.attr("width", bbox.getBBox().width)""
+      //.attr("height", bbox.getBBox().height)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1);
 
-  nodeExit.select("text")
-      .style("fill-opacity", 1e-6);
+    nodeExit.select("text");
+  } else if (displayNodeType === "Circle") {
+    nodeExit.select("circle")
+        .attr("r", 18)
+      //.attr("width", bbox.getBBox().width)""
+      //.attr("height", bbox.getBBox().height)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1);
+
+    nodeExit.select("text");
+  } else {
+    nodeExit.select("circle").attr("r", 1e-6);
+    nodeExit.select("text").style("fill-opacity", 1e-6);
+  }
 
   // Update the links…
   var link = vis.selectAll("path.link")

@@ -9,11 +9,15 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
 
 
-## Version 0.09
-added ability to group duplicate results togather.. try it out on the live demo on users or products data set and see if it can help you gain new insights into the available data!!
+## Version 0.1.0
+added directionality, hover tooltip, node display type selection. 
+You will have option to display tree from left to right, right to left, or top down.  In addition, you can enable tooltip and be able to see details of each node.  It is now possible to select a circular, rectangular, or default display of nodes.
 
-## Version 0.08
-Occasionally you may want to see duplicate result generated to see relative results for each item in the list. By default, this lag is not set. Try it out and see if you can visually see something meaningful 
+## Version 0.0.9
+added ability to group duplicate results together.. try it out on the live demo on users or products data set and see if it can help you gain new insights into the available data!!
+
+## Version 0.0.8
+Occasionally you may want to see duplicate result generated to see relative results for each item in the list. By default, this flag is not set. Try it out and see if you can visually see something meaningful 
 in yor data set.
 
 ## Version 0.0.7
@@ -58,6 +62,7 @@ in your html:
 	  [data]="myDataSet"
     [enableConfiguration]="true"
     [allowduplicates]="false"
+    [groupduplicates]="false"
 	  (onVisualization)="onVisualization($event)"></visualization-points>
 ```
 
@@ -84,6 +89,7 @@ Alternatively, if you already know about the json structure and do not want to s
   	[targetKeys]="myTargetKeys"
     [interestingPoints]="myPoints"
     [allowduplicates]="false"
+    [groupduplicates]="false"
 	  (onVisualization)="onVisualization($event)"></visualization-points>
 
 
