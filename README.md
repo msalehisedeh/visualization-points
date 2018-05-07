@@ -6,8 +6,12 @@ And make sure the **data** you are supplying is a list of JSON Objects!
 
 If you want to see the result represented in any other form or fashion, you are welcome to shoot me a message or join me in this effort and make it even easier to snoop into a data of unknown structure...
 
-[Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points)
+[Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
 
+
+## Version 0.2.0
+added path highlight on hover over node, path selection on click over node, and zoom in/out with doubleClick and shift+doublrClick.
+Upgraded to d3 version 3.2.7
 
 ## Version 0.1.0
 added directionality, hover tooltip, node display type selection. 
