@@ -54,6 +54,13 @@
         <option value="Rectangle">Rectangle</option>
         <option value="Circle">Circle</option>
     </select>
+    <label for="colorSets">Color sets:</label>
+    <select name="colorSets" 
+            id="colorSets" 
+            (change)="changeColorSets($event)">
+        <option value="1">Sample 1</option>
+        <option value="2">Sample 2</option>
+    </select>
     <label for="tooltip">
         <input
             type="checkbox" 

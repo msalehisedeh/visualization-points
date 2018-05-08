@@ -10703,10 +10703,35 @@ function d3_layout_treemapPad(node, padding) {
 
 
 
+
+
+
+
+
 var root;
 var tooltip;
-var directionality; 
-var displayNodeType
+var configuration = {
+  tooltipEnabled: false,
+  directionality: "L2R",
+  nodeType: "Plain",
+  targetDiv: "#d3-container",
+  styles: {
+    links: {
+      colors: {
+        default: "gray",
+        hover: "#fcb2b2",
+        selected: "red"
+      }
+    },
+    nodes: {
+      colors: {
+        default: "#fff",
+        hover: "#fcb2b2",
+        selected: "lightsteelblue"
+      }
+    }
+  }
+};
 var vis;
 var mySvg;
 var m = [5, 10, 5, 10],
@@ -10717,7 +10742,7 @@ var m = [5, 10, 5, 10],
 var tree = d3.layout.tree().size([h, w]);
 
 var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return directionality === "TD" ? [d.x, d.y] : [d.y, d.x]; });
+    .projection(function(d) { return configuration.directionality === "TD" ? [d.x, d.y] : [d.y, d.x]; });
 
 function tracePath(node, flag) {
   var parent = node;
@@ -10726,8 +10751,34 @@ function tracePath(node, flag) {
     parent = parent.parent;
   }
   d3.selectAll("path").style("stroke", function(d) {
-    return d.target.traced ? "#fcb2b2" : (d.target.selected ? "red" : "gray");
+    return d.target.traced ? 
+              configuration.styles.links.colors.hover : 
+              (d.target.selected ? 
+                configuration.styles.links.colors.selected : 
+                configuration.styles.links.colors.default);
   });
+  d3.selectAll("g.node").style("fill", function(d) {
+    return d.traced ? 
+              configuration.styles.links.colors.hover : 
+              (d.selected ? 
+                configuration.styles.links.colors.selected : 
+                "#000");
+  });
+  if (configuration.nodeType === "Rectangle") {
+    d3.selectAll("rect")
+      .style("stroke", function(d) {
+        return d.traced ? 
+                configuration.styles.links.colors.hover : 
+                configuration.styles.links.colors.default;
+      });
+  } else {
+    d3.selectAll("circle")
+      .style("stroke", function(d) {
+        return d.traced ? 
+                configuration.styles.links.colors.hover : 
+                configuration.styles.links.colors.default;
+      });  
+  }
 }
 function deselect(node) {
   node.selected = false;
@@ -10753,8 +10804,30 @@ function selectPath(node, flag) {
     parent = parent.parent;
   }
   d3.selectAll("path").style("stroke", function(d) {
-    return d.target.selected ? "red" : "gray";
+    return d.target.selected ? 
+              configuration.styles.links.colors.selected : 
+              configuration.styles.links.colors.default;
   });
+  d3.selectAll("g.node").style("fill", function(d) {
+    return d.selected ? 
+                configuration.styles.links.colors.selected : 
+                "#000";
+  });
+  if (configuration.nodeType === "Rectangle") {
+    d3.selectAll("rect")
+      .style("stroke", function(d) {
+        return d.selected ? 
+                configuration.styles.links.colors.selected : 
+                configuration.styles.nodes.colors.selected;
+      });  
+  } else {
+    d3.selectAll("circle")
+      .style("stroke", function(d) {
+        return d.selected ? 
+                configuration.styles.links.colors.selected : 
+                configuration.styles.nodes.colors.selected;
+      });  
+  }
 }
 function nodeCount(children, counter) {
   if (children) {
@@ -10784,7 +10857,7 @@ function depthCount(children){
 function resize(rootNode) {
   var depth = depthCount(rootNode.children);
 
-  if (directionality === "TD") {
+  if (configuration.directionality === "TD") {
     var width =  333 + (nodeCount(rootNode.children, 0) * 28);
     var height = depth < 4 ? 800 : depth * 400;
   
@@ -10806,10 +10879,10 @@ function resize(rootNode) {
     tree.size([height, width]);
     mySvg.attr("width", width).attr("height",height);
   
-    if (directionality === "L2R") {
+    if (configuration.directionality === "L2R") {
       rootNode.x0 = h / 2;
       rootNode.y0 = 0;
-    } else if (directionality === "R2L") {
+    } else if (configuration.directionality === "R2L") {
       rootNode.x0 = h / 2;
       rootNode.y0 = w;
     }
@@ -10818,14 +10891,13 @@ function resize(rootNode) {
 }
 function initiateD3(rootNode, config) {
 
-  directionality = config.directionality; 
-  displayNodeType = config.displayNodeType;
+  configuration = config; 
   var zoom = d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
-  if (config.tooltipEnabled) {
-    tooltip = d3.select(config.targetDiv).append("div").attr("class", "tooltip").style("opacity", 0);
+  if (configuration.tooltipEnabled) {
+    tooltip = d3.select(configuration.targetDiv).append("div").attr("class", "tooltip").style("opacity", 0);
   }
-  mySvg = d3.select(config.targetDiv).append("svg:svg").call(zoom);
-  if (directionality === "TD") {
+  mySvg = d3.select(configuration.targetDiv).append("svg:svg").call(zoom);
+  if (configuration.directionality === "TD") {
     vis = mySvg.append("svg:g").attr("transform", "translate(" + m[0] + "," + m[3] + ")");
   } else {
     vis = mySvg.append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")");
@@ -10836,6 +10908,7 @@ function initiateD3(rootNode, config) {
   update(root);
   resize(root);
   update(root);
+  tracePath(root, false);  
 }
 window['initiateD3'] = initiateD3;
 
@@ -10855,9 +10928,9 @@ function update(source) {
   var nodes = tree.nodes(root).reverse();
   
   // Normalize for fixed-depth.
-  if (directionality === "L2R") {
+  if (configuration.directionality === "L2R") {
     nodes.forEach(function(d) { d.y = d.depth * 180; });
-  } else if (directionality === "R2L") {
+  } else if (configuration.directionality === "R2L") {
     nodes.forEach(function(d) { d.y = w - d.depth * 180; });
   } else {
     nodes.forEach(function(d) { d.y = d.depth * 100; });
@@ -10871,18 +10944,26 @@ function update(source) {
   var nodeEnter = node.enter().append("svg:g")
       .attr("class", "node")
       .attr("transform", function(d) { 
-        return directionality === "TD" ? 
+        return configuration.directionality === "TD" ? 
                     "translate(" + source.x0 + "," + source.y0 + ")":
                     "translate(" + source.y0 + "," + source.x0 + ")"; 
       })
       .on("mouseover", function(d) {
-        d3.select(this).style("fill", "red");
+        d3.select(this).style("fill", configuration.styles.nodes.colors.selected);
         tracePath(d, true);
         if (tooltip && d.data) {
           var content = "";
-          var p = Object.keys(d.data);
-          for (var i = 0; i < p.length; i++) {
-            content += "<strong>" + p[i] + ": </strong>" + d.data[p[i]] + "<br/>";
+          if (typeof d.data === "object") {
+            var p = Object.keys(d.data);
+            for (var i = 0; i < p.length; i++) {
+              var key = p[i];
+              var dValue = d.data[key];
+  
+              dValue = (typeof dValue === "object") ? JSON.stringify(dValue) : dValue;
+              content += "<strong>" + key + ": </strong>" + dValue + "<br/>";
+            }
+          } else {
+            content = d.data;
           }
           tooltip.html(content);	
           tooltip.transition()		
@@ -10904,7 +10985,7 @@ function update(source) {
         update(d);
       });
 
-  if (displayNodeType === "Rectangle") {
+  if (configuration.nodeType === "Rectangle") {
     nodeEnter.append("svg:rect")
       .attr("width", 36)
       .attr("height", 22)
@@ -10913,14 +10994,16 @@ function update(source) {
       .attr("stroke", "black")
       .attr("stroke-width", 1)
       .style("fill", function (d) {
-        return d._children ? "lightsteelblue" : "#fff";
+        return d._children ? 
+                configuration.styles.nodes.colors.selected : 
+                configuration.styles.nodes.colors.default;
       });
-    if (directionality === "L2R") {
+    if (configuration.directionality === "L2R") {
       nodeEnter.append("svg:text")
       .attr("y", ".35em")
       .attr("text-anchor", "middle")
       .text(function (d) {return d.name;});
-    } else if (directionality === "R2L") {
+    } else if (configuration.directionality === "R2L") {
       nodeEnter.append("svg:text")
       .attr("y", ".35em")
       .attr("text-anchor", "middle")
@@ -10931,7 +11014,7 @@ function update(source) {
         .attr("text-anchor", "middle")
         .text(function(d) { return d.name; });
     }
-  } else if (displayNodeType === "Circle") {
+  } else if (configuration.nodeType === "Circle") {
     nodeEnter.append("svg:circle")
       .attr("x", function(d) { return  -18 })
       .attr("y", function(d) { return  -11 })
@@ -10939,15 +11022,17 @@ function update(source) {
       .attr("stroke", "black")
       .attr("stroke-width", 1)
       .style("fill", function (d) {
-        return d._children ? "lightsteelblue" : "#fff";
+        return d._children ? 
+                  configuration.styles.nodes.colors.selected : 
+                  configuration.styles.nodes.colors.default;
       });
 
-      if (directionality === "L2R") {
+      if (configuration.directionality === "L2R") {
         nodeEnter.append("svg:text")
         .attr("y", ".35em")
         .attr("text-anchor", "middle")
         .text(function (d) {return d.name;});
-      } else if (directionality === "R2L") {
+      } else if (configuration.directionality === "R2L") {
         nodeEnter.append("svg:text")
           .attr("y", ".35em")
           .attr("text-anchor", "middle")
@@ -10961,16 +11046,20 @@ function update(source) {
     } else {
     nodeEnter.append("svg:circle")
     .attr("r", 1e-6)
-    .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+    .style("fill", function(d) { 
+      return d._children ? 
+              configuration.styles.nodes.colors.selected : 
+              configuration.styles.nodes.colors.default; 
+    });
 
-    if (directionality === "L2R") {
+    if (configuration.directionality === "L2R") {
       nodeEnter.append("svg:text")
         .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
         .attr("dy", ".35em")
         .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
         .text(function(d) { return d.name; })
         .style("fill-opacity", 1e-6);
-    } else if (directionality === "R2L") {
+    } else if (configuration.directionality === "R2L") {
       nodeEnter.append("svg:text")
         .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
         .attr("dy", ".35em")
@@ -10991,36 +11080,44 @@ function update(source) {
   var nodeUpdate = node.transition()
       .duration(duration)
       .attr("transform", function(d) { 
-        return directionality === "TD" ? 
+        return configuration.directionality === "TD" ? 
                   "translate(" + d.x + "," + d.y + ")" :
                   "translate(" + d.y + "," + d.x + ")"; 
       });
 
-  if (displayNodeType === "Rectangle") {
+  if (configuration.nodeType === "Rectangle") {
     nodeUpdate.select("rect")
         .attr("width", 36)
         .attr("height", 22)
         .attr("stroke", "black")
         .attr("stroke-width", 1)
         .style("fill", function (d) {
-        return d._children ? "lightsteelblue" : "#fff";
+        return d._children ? 
+                configuration.styles.nodes.colors.selected : 
+                configuration.styles.nodes.colors.default;
     });
 
     nodeUpdate.select("text").style("fill-opacity", 1);
-  } else if (displayNodeType === "Circle") {
+  } else if (configuration.nodeType === "Circle") {
     nodeUpdate.select("rect")
         .attr("r", 18)
         .attr("stroke", "black")
         .attr("stroke-width", 1)
         .style("fill", function (d) {
-        return d._children ? "lightsteelblue" : "#fff";
+        return d._children ? 
+                configuration.styles.nodes.colors.selected : 
+                configuration.styles.nodes.colors.default;
     });
 
     nodeUpdate.select("text").style("fill-opacity", 1);
   } else {
     nodeUpdate.select("circle")
       .attr("r", 4.5)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+      .style("fill", function(d) { 
+        return d._children ? 
+                configuration.styles.nodes.colors.selected : 
+                configuration.styles.nodes.colors.default; 
+      });
 
     nodeUpdate.select("text").style("fill-opacity", 1);
   }
@@ -11029,13 +11126,13 @@ function update(source) {
   var nodeExit = node.exit().transition()
       .duration(duration)
       .attr("transform", function(d) { 
-        return directionality === "TD" ? 
+        return configuration.directionality === "TD" ? 
             "translate(" + source.x + "," + source.y + ")" :
             "translate(" + source.y + "," + source.x + ")";
       })
       .remove();
 
-  if (displayNodeType === "Rectangle") {
+  if (configuration.nodeType === "Rectangle") {
     nodeExit.select("rect")
         .attr("width", 36)
         .attr("height", 22)
@@ -11045,7 +11142,7 @@ function update(source) {
         .attr("stroke-width", 1);
 
     nodeExit.select("text");
-  } else if (displayNodeType === "Circle") {
+  } else if (configuration.nodeType === "Circle") {
     nodeExit.select("circle")
         .attr("r", 18)
       //.attr("width", bbox.getBBox().width)""

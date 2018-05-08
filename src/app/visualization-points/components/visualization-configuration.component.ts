@@ -8,6 +8,7 @@ import {
   EventEmitter,
   Renderer
 } from '@angular/core';
+import { D3Configuration } from '../interfaces/interfaces';
 
 @Component({
   selector: 'visualization-configuration',
@@ -25,14 +26,29 @@ export class VisualizationConfigurationComponent {
   @Input("allowduplicates")
   allowduplicates = false;
 
-  @Input("tooltipEnabled")
-  tooltipEnabled = false;
-
-  @Input("directionality")
-  directionality = "L2R";
-
-  @Input("nodeType")
-  nodeType = "Plain";
+  @Input("configuration")
+  configuration: D3Configuration = {
+    tooltipEnabled: false,
+    directionality: "L2R",
+    nodeType: "Plain",
+    targetDiv: "#d3-container",
+    styles: {
+      links: {
+        colors: {
+          default: "gray",
+          hover: "#fcb2b2",
+          selected: "red"
+        }
+      },
+      nodes: {
+        colors: {
+          default: "#fff",
+          hover: "#fcb2b2",
+          selected: "lightsteelblue"
+        }
+      }
+    }
+  };
 
   @Input("groupduplicates")
   groupduplicates = false;
@@ -50,12 +66,38 @@ export class VisualizationConfigurationComponent {
   }
 
   chaneDirectionality(event) {
-    this.directionality = event.target.value;
+    this.configuration.directionality = event.target.value;
     this.emitChange();
   }
 
   changeNodeType(event) {
-    this.nodeType = event.target.value;
+    this.configuration.nodeType = event.target.value;
+    this.emitChange();
+  }
+  changeColorSets(event) {
+    if (event.target.value == 1) {
+      this.configuration.styles.links.colors = {
+        default: "gray",
+        hover: "#fcb2b2",
+        selected: "red"
+      };
+      this.configuration.styles.nodes.colors = {
+          default: "#fff",
+          hover: "#fcb2b2",
+          selected: "lightsteelblue"
+      }
+    } else {
+      this.configuration.styles.links.colors = {
+        default: "green",
+        hover: "#cad2d2",
+        selected: "#f58c24"
+      };
+      this.configuration.styles.nodes.colors = {
+          default: "yellow",
+          hover: "#cad2d2",
+          selected: "blue"
+      }
+    }
     this.emitChange();
   }
 
@@ -68,7 +110,7 @@ export class VisualizationConfigurationComponent {
       this.groupduplicates = input.checked;
       this.allowduplicates =  this.groupduplicates ? true : this.allowduplicates;
     } else if (item === "tooltipEnabled") {
-      this.tooltipEnabled = input.checked;
+      this.configuration.tooltipEnabled = input.checked;
     } else {
       item.selected = (input.checked);
     }
@@ -78,11 +120,8 @@ export class VisualizationConfigurationComponent {
     this.onchange.emit({
       points: this.interestingPoints,
       keys: this.targetKeys,
-      directionality: this.directionality, // L2R, R2T, TD - Left 2 Right, R 2 L, Top Down.
-      nodeType: this.nodeType, // Plain, Rectangle, Cricle
       allowduplicates: this.allowduplicates,
-      tooltipEnabled: this.tooltipEnabled,
-      groupduplicates: this.groupduplicates
+      configuration: this.configuration
     });
   }
 }

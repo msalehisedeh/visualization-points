@@ -9,6 +9,9 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
 
 
+## Version 0.3.0
+added ability to set node and link colors. Modified code to make sample work on StackBlitz.
+
 ## Version 0.2.0
 added path highlight on hover over node, path selection on click over node, and zoom in/out with doubleClick and shift+doublrClick.
 Upgraded to d3 version 3.2.7
@@ -63,11 +66,37 @@ Run `npm install visualization-points` in your application. and do the following
 in your html:
 ```javascript
 <visualization-points
-	  [data]="myDataSet"
-    [enableConfiguration]="true"
-    [allowduplicates]="false"
-    [groupduplicates]="false"
-	  (onVisualization)="onVisualization($event)"></visualization-points>
+	[data]="myDataSet"
+  [enableConfiguration]="true"
+  [settings]="mySettings"
+  [allowduplicates]="allowduplicates"
+  [groupduplicates]="groupduplicates"
+  (onVisualization)="onVisualization($event)"></visualization-points>
+  
+  where your settings could be configured as:
+
+  mySettings: D3Configuration = {
+    tooltipEnabled: false,
+    directionality: "L2R",
+    nodeType: "Plain",
+    targetDiv: "#d3-container",
+    styles: {
+      links: {
+        colors: {
+          default: "gray",
+          hover: "#fcb2b2",
+          selected: "red"
+        }
+      },
+      nodes: {
+        colors: {
+          default: "#fff",
+          hover: "#fcb2b2",
+          selected: "lightsteelblue"
+        }
+      }
+    }
+  };
 ```
 
 in your `.angular-cli.json` file include the following:

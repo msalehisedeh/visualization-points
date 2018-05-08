@@ -1,6 +1,7 @@
 import { OnInit, OnChanges, AfterViewInit, EventEmitter } from '@angular/core';
 import { VisualizationPointsMaker } from '../injectables/visualization-points-maker';
 import { VisualizationPointsEvaluator } from '../injectables/visualization-points-evaluator';
+import { D3Configuration } from '../interfaces/interfaces';
 export declare class VisualizationPointsComponent implements OnInit, AfterViewInit, OnChanges {
     private pointMaker;
     private evaluator;
@@ -10,9 +11,7 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     data: any;
     allowduplicates: boolean;
     groupduplicates: boolean;
-    tooltipEnabled: boolean;
-    directionality: string;
-    nodeType: string;
+    settings: D3Configuration;
     enableConfiguration: boolean;
     onVisualization: EventEmitter<{}>;
     d3Container: any;

@@ -32,7 +32,8 @@
     background: #cfcfcf;	
     border: 1px solid #3a3939;		
     border-radius: 4px;			
-    pointer-events: none;			
+    pointer-events: none;		
+    z-index: 5;	
   }
   
   ::ng-deep .node text {

@@ -296,9 +296,28 @@ class VisualizationPointsComponent {
         this.targetKeys = [];
         this.allowduplicates = false;
         this.groupduplicates = false;
-        this.tooltipEnabled = false;
-        this.directionality = "L2R";
-        this.nodeType = "Plain";
+        this.settings = {
+            tooltipEnabled: false,
+            directionality: "L2R",
+            nodeType: "Plain",
+            targetDiv: "#d3-container",
+            styles: {
+                links: {
+                    colors: {
+                        default: "gray",
+                        hover: "#fcb2b2",
+                        selected: "red"
+                    }
+                },
+                nodes: {
+                    colors: {
+                        default: "#fff",
+                        hover: "#fcb2b2",
+                        selected: "lightsteelblue"
+                    }
+                }
+            }
+        };
         this.onVisualization = new EventEmitter();
     }
     /**
@@ -325,12 +344,7 @@ class VisualizationPointsComponent {
             this.d3Container.nativeElement.innerHTML = "";
             this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates, this.groupduplicates);
             const /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-            window['initiateD3'](sizedupPoints, {
-                tooltipEnabled: this.tooltipEnabled,
-                directionality: this.directionality,
-                displayNodeType: this.nodeType,
-                targetDiv: "#d3-container"
-            });
+            window['initiateD3'](sizedupPoints, this.settings);
             this.onVisualization.emit(this.evaluatedPoints);
         }
         else {
@@ -385,7 +399,9 @@ class VisualizationPointsComponent {
      */
     ngAfterViewInit() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.loadScript("assets/d3.js", 'd3js');
+            if (!window['initiateD3']) {
+                yield this.loadScript("assets/d3.js", 'd3js');
+            }
         });
     }
     /**
@@ -395,15 +411,15 @@ class VisualizationPointsComponent {
      */
     loadScript(url, id) {
         return new Promise((resolve, reject) => {
-            const /** @type {?} */ script = document.getElementById(id);
-            if (!script) {
-                const /** @type {?} */ scriptElement = document.createElement('script');
-                scriptElement.type = "text/javascript";
-                scriptElement.src = url;
-                scriptElement.id = id;
-                scriptElement.onload = resolve;
-                document.body.appendChild(scriptElement);
-            }
+            // const script = document.getElementById(id);
+            // if (!script) {
+            const /** @type {?} */ scriptElement = document.createElement('script');
+            scriptElement.type = "text/javascript";
+            scriptElement.src = url;
+            // scriptElement.id = id;
+            scriptElement.onload = resolve;
+            document.body.appendChild(scriptElement);
+            // }
         });
     }
     /**
@@ -431,9 +447,7 @@ class VisualizationPointsComponent {
     onchange(event) {
         this.allowduplicates = event.allowduplicates;
         this.groupduplicates = event.groupduplicates;
-        this.directionality = event.directionality;
-        this.nodeType = event.nodeType;
-        this.tooltipEnabled = event.tooltipEnabled;
+        this.settings = event.configuration;
         this.triggerEvaluation(this.sanitize(event.points), this.sanitize(event.keys));
     }
 }
@@ -445,6 +459,7 @@ VisualizationPointsComponent.decorators = [
     <visualization-configuration
         [interestingPoints]="interestingPoints"
         [targetKeys]="targetKeys"
+        [configuration]="settings"
         [allowduplicates]="allowduplicates"
         [groupduplicates]="groupduplicates"
         (onchange)="onchange($event)"></visualization-configuration>
@@ -482,7 +497,8 @@ VisualizationPointsComponent.decorators = [
     background:#cfcfcf;
     border:1px solid #3a3939;
     border-radius:4px;
-    pointer-events:none; }
+    pointer-events:none;
+    z-index:5; }
   :host ::ng-deep .node text{
     font-size:11px;
     font-weight:bold; }
@@ -504,9 +520,7 @@ VisualizationPointsComponent.propDecorators = {
     "data": [{ type: Input, args: ["data",] },],
     "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
     "groupduplicates": [{ type: Input, args: ["groupduplicates",] },],
-    "tooltipEnabled": [{ type: Input, args: ["tooltipEnabled",] },],
-    "directionality": [{ type: Input, args: ["directionality",] },],
-    "nodeType": [{ type: Input, args: ["nodeType",] },],
+    "settings": [{ type: Input, args: ["settings",] },],
     "enableConfiguration": [{ type: Input, args: ["enableConfiguration",] },],
     "onVisualization": [{ type: Output, args: ["onVisualization",] },],
     "d3Container": [{ type: ViewChild, args: ["d3Container",] },],
@@ -525,9 +539,28 @@ class VisualizationConfigurationComponent {
         this.interestingPoints = [];
         this.targetKeys = [];
         this.allowduplicates = false;
-        this.tooltipEnabled = false;
-        this.directionality = "L2R";
-        this.nodeType = "Plain";
+        this.configuration = {
+            tooltipEnabled: false,
+            directionality: "L2R",
+            nodeType: "Plain",
+            targetDiv: "#d3-container",
+            styles: {
+                links: {
+                    colors: {
+                        default: "gray",
+                        hover: "#fcb2b2",
+                        selected: "red"
+                    }
+                },
+                nodes: {
+                    colors: {
+                        default: "#fff",
+                        hover: "#fcb2b2",
+                        selected: "lightsteelblue"
+                    }
+                }
+            }
+        };
         this.groupduplicates = false;
         this.onchange = new EventEmitter();
     }
@@ -546,7 +579,7 @@ class VisualizationConfigurationComponent {
      * @return {?}
      */
     chaneDirectionality(event) {
-        this.directionality = event.target.value;
+        this.configuration.directionality = event.target.value;
         this.emitChange();
     }
     /**
@@ -554,7 +587,38 @@ class VisualizationConfigurationComponent {
      * @return {?}
      */
     changeNodeType(event) {
-        this.nodeType = event.target.value;
+        this.configuration.nodeType = event.target.value;
+        this.emitChange();
+    }
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    changeColorSets(event) {
+        if (event.target.value == 1) {
+            this.configuration.styles.links.colors = {
+                default: "gray",
+                hover: "#fcb2b2",
+                selected: "red"
+            };
+            this.configuration.styles.nodes.colors = {
+                default: "#fff",
+                hover: "#fcb2b2",
+                selected: "lightsteelblue"
+            };
+        }
+        else {
+            this.configuration.styles.links.colors = {
+                default: "green",
+                hover: "#cad2d2",
+                selected: "#f58c24"
+            };
+            this.configuration.styles.nodes.colors = {
+                default: "yellow",
+                hover: "#cad2d2",
+                selected: "blue"
+            };
+        }
         this.emitChange();
     }
     /**
@@ -573,7 +637,7 @@ class VisualizationConfigurationComponent {
             this.allowduplicates = this.groupduplicates ? true : this.allowduplicates;
         }
         else if (item === "tooltipEnabled") {
-            this.tooltipEnabled = input.checked;
+            this.configuration.tooltipEnabled = input.checked;
         }
         else {
             item.selected = (input.checked);
@@ -587,13 +651,8 @@ class VisualizationConfigurationComponent {
         this.onchange.emit({
             points: this.interestingPoints,
             keys: this.targetKeys,
-            directionality: this.directionality,
-            // L2R, R2T, TD - Left 2 Right, R 2 L, Top Down.
-            nodeType: this.nodeType,
-            // Plain, Rectangle, Cricle
             allowduplicates: this.allowduplicates,
-            tooltipEnabled: this.tooltipEnabled,
-            groupduplicates: this.groupduplicates
+            configuration: this.configuration
         });
     }
 }
@@ -655,6 +714,13 @@ VisualizationConfigurationComponent.decorators = [
         <option value="Plain">Plain</option>
         <option value="Rectangle">Rectangle</option>
         <option value="Circle">Circle</option>
+    </select>
+    <label for="colorSets">Color sets:</label>
+    <select name="colorSets"
+            id="colorSets"
+            (change)="changeColorSets($event)">
+        <option value="1">Sample 1</option>
+        <option value="2">Sample 2</option>
     </select>
     <label for="tooltip">
         <input
@@ -736,9 +802,7 @@ VisualizationConfigurationComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
     "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
-    "tooltipEnabled": [{ type: Input, args: ["tooltipEnabled",] },],
-    "directionality": [{ type: Input, args: ["directionality",] },],
-    "nodeType": [{ type: Input, args: ["nodeType",] },],
+    "configuration": [{ type: Input, args: ["configuration",] },],
     "groupduplicates": [{ type: Input, args: ["groupduplicates",] },],
     "onchange": [{ type: Output, args: ["onchange",] },],
 };

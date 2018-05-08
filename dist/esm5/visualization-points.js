@@ -312,9 +312,28 @@ var VisualizationPointsComponent = (function () {
         this.targetKeys = [];
         this.allowduplicates = false;
         this.groupduplicates = false;
-        this.tooltipEnabled = false;
-        this.directionality = "L2R";
-        this.nodeType = "Plain";
+        this.settings = {
+            tooltipEnabled: false,
+            directionality: "L2R",
+            nodeType: "Plain",
+            targetDiv: "#d3-container",
+            styles: {
+                links: {
+                    colors: {
+                        default: "gray",
+                        hover: "#fcb2b2",
+                        selected: "red"
+                    }
+                },
+                nodes: {
+                    colors: {
+                        default: "#fff",
+                        hover: "#fcb2b2",
+                        selected: "lightsteelblue"
+                    }
+                }
+            }
+        };
         this.onVisualization = new EventEmitter();
     }
     /**
@@ -342,12 +361,7 @@ var VisualizationPointsComponent = (function () {
             this.d3Container.nativeElement.innerHTML = "";
             this.evaluatedPoints = this.evaluator.evaluatePoints(this.data, points, primaries, this.allowduplicates, this.groupduplicates);
             var /** @type {?} */ sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-            window['initiateD3'](sizedupPoints, {
-                tooltipEnabled: this.tooltipEnabled,
-                directionality: this.directionality,
-                displayNodeType: this.nodeType,
-                targetDiv: "#d3-container"
-            });
+            window['initiateD3'](sizedupPoints, this.settings);
             this.onVisualization.emit(this.evaluatedPoints);
         }
         else {
@@ -404,10 +418,13 @@ var VisualizationPointsComponent = (function () {
         return __awaiter(this, void 0, void 0, function () {
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.loadScript("assets/d3.js", 'd3js')];
+                    case 0:
+                        if (!!window['initiateD3']) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.loadScript("assets/d3.js", 'd3js')];
                     case 1:
                         _a.sent();
-                        return [2 /*return*/];
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
                 }
             });
         });
@@ -419,15 +436,15 @@ var VisualizationPointsComponent = (function () {
      */
     VisualizationPointsComponent.prototype.loadScript = function (url, id) {
         return new Promise(function (resolve, reject) {
-            var /** @type {?} */ script = document.getElementById(id);
-            if (!script) {
-                var /** @type {?} */ scriptElement = document.createElement('script');
-                scriptElement.type = "text/javascript";
-                scriptElement.src = url;
-                scriptElement.id = id;
-                scriptElement.onload = resolve;
-                document.body.appendChild(scriptElement);
-            }
+            // const script = document.getElementById(id);
+            // if (!script) {
+            var /** @type {?} */ scriptElement = document.createElement('script');
+            scriptElement.type = "text/javascript";
+            scriptElement.src = url;
+            // scriptElement.id = id;
+            scriptElement.onload = resolve;
+            document.body.appendChild(scriptElement);
+            // }
         });
     };
     /**
@@ -455,9 +472,7 @@ var VisualizationPointsComponent = (function () {
     VisualizationPointsComponent.prototype.onchange = function (event) {
         this.allowduplicates = event.allowduplicates;
         this.groupduplicates = event.groupduplicates;
-        this.directionality = event.directionality;
-        this.nodeType = event.nodeType;
-        this.tooltipEnabled = event.tooltipEnabled;
+        this.settings = event.configuration;
         this.triggerEvaluation(this.sanitize(event.points), this.sanitize(event.keys));
     };
     return VisualizationPointsComponent;
@@ -465,8 +480,8 @@ var VisualizationPointsComponent = (function () {
 VisualizationPointsComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-points',
-                template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        [allowduplicates]=\"allowduplicates\"\n        [groupduplicates]=\"groupduplicates\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node rect{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep div.tooltip{\n    position:absolute;\n    padding:5px;\n    font:12px sans-serif;\n    background:#cfcfcf;\n    border:1px solid #3a3939;\n    border-radius:4px;\n    pointer-events:none; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
+                template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        [configuration]=\"settings\"\n        [allowduplicates]=\"allowduplicates\"\n        [groupduplicates]=\"groupduplicates\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node rect{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep div.tooltip{\n    position:absolute;\n    padding:5px;\n    font:12px sans-serif;\n    background:#cfcfcf;\n    border:1px solid #3a3939;\n    border-radius:4px;\n    pointer-events:none;\n    z-index:5; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
             },] },
 ];
 /** @nocollapse */
@@ -480,9 +495,7 @@ VisualizationPointsComponent.propDecorators = {
     "data": [{ type: Input, args: ["data",] },],
     "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
     "groupduplicates": [{ type: Input, args: ["groupduplicates",] },],
-    "tooltipEnabled": [{ type: Input, args: ["tooltipEnabled",] },],
-    "directionality": [{ type: Input, args: ["directionality",] },],
-    "nodeType": [{ type: Input, args: ["nodeType",] },],
+    "settings": [{ type: Input, args: ["settings",] },],
     "enableConfiguration": [{ type: Input, args: ["enableConfiguration",] },],
     "onVisualization": [{ type: Output, args: ["onVisualization",] },],
     "d3Container": [{ type: ViewChild, args: ["d3Container",] },],
@@ -500,9 +513,28 @@ var VisualizationConfigurationComponent = (function () {
         this.interestingPoints = [];
         this.targetKeys = [];
         this.allowduplicates = false;
-        this.tooltipEnabled = false;
-        this.directionality = "L2R";
-        this.nodeType = "Plain";
+        this.configuration = {
+            tooltipEnabled: false,
+            directionality: "L2R",
+            nodeType: "Plain",
+            targetDiv: "#d3-container",
+            styles: {
+                links: {
+                    colors: {
+                        default: "gray",
+                        hover: "#fcb2b2",
+                        selected: "red"
+                    }
+                },
+                nodes: {
+                    colors: {
+                        default: "#fff",
+                        hover: "#fcb2b2",
+                        selected: "lightsteelblue"
+                    }
+                }
+            }
+        };
         this.groupduplicates = false;
         this.onchange = new EventEmitter();
     }
@@ -521,7 +553,7 @@ var VisualizationConfigurationComponent = (function () {
      * @return {?}
      */
     VisualizationConfigurationComponent.prototype.chaneDirectionality = function (event) {
-        this.directionality = event.target.value;
+        this.configuration.directionality = event.target.value;
         this.emitChange();
     };
     /**
@@ -529,7 +561,38 @@ var VisualizationConfigurationComponent = (function () {
      * @return {?}
      */
     VisualizationConfigurationComponent.prototype.changeNodeType = function (event) {
-        this.nodeType = event.target.value;
+        this.configuration.nodeType = event.target.value;
+        this.emitChange();
+    };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
+    VisualizationConfigurationComponent.prototype.changeColorSets = function (event) {
+        if (event.target.value == 1) {
+            this.configuration.styles.links.colors = {
+                default: "gray",
+                hover: "#fcb2b2",
+                selected: "red"
+            };
+            this.configuration.styles.nodes.colors = {
+                default: "#fff",
+                hover: "#fcb2b2",
+                selected: "lightsteelblue"
+            };
+        }
+        else {
+            this.configuration.styles.links.colors = {
+                default: "green",
+                hover: "#cad2d2",
+                selected: "#f58c24"
+            };
+            this.configuration.styles.nodes.colors = {
+                default: "yellow",
+                hover: "#cad2d2",
+                selected: "blue"
+            };
+        }
         this.emitChange();
     };
     /**
@@ -548,7 +611,7 @@ var VisualizationConfigurationComponent = (function () {
             this.allowduplicates = this.groupduplicates ? true : this.allowduplicates;
         }
         else if (item === "tooltipEnabled") {
-            this.tooltipEnabled = input.checked;
+            this.configuration.tooltipEnabled = input.checked;
         }
         else {
             item.selected = (input.checked);
@@ -562,13 +625,8 @@ var VisualizationConfigurationComponent = (function () {
         this.onchange.emit({
             points: this.interestingPoints,
             keys: this.targetKeys,
-            directionality: this.directionality,
-            // L2R, R2T, TD - Left 2 Right, R 2 L, Top Down.
-            nodeType: this.nodeType,
-            // Plain, Rectangle, Cricle
             allowduplicates: this.allowduplicates,
-            tooltipEnabled: this.tooltipEnabled,
-            groupduplicates: this.groupduplicates
+            configuration: this.configuration
         });
     };
     return VisualizationConfigurationComponent;
@@ -576,7 +634,7 @@ var VisualizationConfigurationComponent = (function () {
 VisualizationConfigurationComponent.decorators = [
     { type: Component, args: [{
                 selector: 'visualization-configuration',
-                template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points default\">\n    <legend>Presentation:</legend>\n    <label for=\"directionality\">Directionality:</label>\n    <select name=\"directionality\"\n            id=\"directionality\"\n            (change)=\"chaneDirectionality($event)\">\n        <option value=\"L2R\">Left to Right</option>\n        <option value=\"R2L\">Right to Left</option>\n        <option value=\"TD\">Top Down</option>\n    </select>\n    <label for=\"nodeType\">Node Type:</label>\n    <select name=\"nodeType\"\n            id=\"nodeType\"\n            (change)=\"changeNodeType($event)\">\n        <option value=\"Plain\">Plain</option>\n        <option value=\"Rectangle\">Rectangle</option>\n        <option value=\"Circle\">Circle</option>\n    </select>\n    <label for=\"tooltip\">\n        <input\n            type=\"checkbox\"\n            name=\"tooltip\"\n            id=\"tooltip\"\n            [checked]=\"tooltipEnabled ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'tooltipEnabled')\" />\n        <span>Enable Tool tip</span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Duplicates In result set:</legend>\n    <label for=\"allowduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"allowduplicates\"\n            id=\"allowduplicates\"\n            [value]=\"allowduplicates\"\n            [checked]=\"allowduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'allowduplicates')\" />\n        <span>Allow Duplicates</span>\n    </label>\n    <label for=\"groupduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"groupduplicates\"\n            id=\"groupduplicates\"\n            [value]=\"groupduplicates\"\n            [checked]=\"groupduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'groupduplicates')\" />\n        <span>Group Duplicates</span>\n    </label>\n</fieldset>\n",
+                template: "<p class=\"info\">\n    <span>\n        Pick points are the attributes in which you want to evaluate.\n        Target keys are the attributes in which evaluated data will be presented on.\n    </span>\n    <span>\n        For example: if you are examining users and pick user age and city as pick points,\n        data will be evaluated on city and age. And if you pick user name and gender as target keys,\n        for each age and city reference, you will see the resulting data as name and age values.</span>\n</p>\n<fieldset class=\"pick-points\">\n    <legend>Target Keys:</legend>\n    <label *ngFor=\"let x of targetKeys; let i = index\" [for]=\"'targetKey' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"targetKey\"\n            [id]=\"'targetKey' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Pick Points:</legend>\n    <label *ngFor=\"let x of interestingPoints; let i = index\" [for]=\"'pickpoint' + i\">\n        <input\n            type=\"checkbox\"\n            name=\"pickpoint\"\n            [id]=\"'pickpoint' + i\"\n            [value]=\"x.value\"\n            [checked]=\"x.selected ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, x)\" />\n        <span [textContent]=\"x.value\"></span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points default\">\n    <legend>Presentation:</legend>\n    <label for=\"directionality\">Directionality:</label>\n    <select name=\"directionality\"\n            id=\"directionality\"\n            (change)=\"chaneDirectionality($event)\">\n        <option value=\"L2R\">Left to Right</option>\n        <option value=\"R2L\">Right to Left</option>\n        <option value=\"TD\">Top Down</option>\n    </select>\n    <label for=\"nodeType\">Node Type:</label>\n    <select name=\"nodeType\"\n            id=\"nodeType\"\n            (change)=\"changeNodeType($event)\">\n        <option value=\"Plain\">Plain</option>\n        <option value=\"Rectangle\">Rectangle</option>\n        <option value=\"Circle\">Circle</option>\n    </select>\n    <label for=\"colorSets\">Color sets:</label>\n    <select name=\"colorSets\"\n            id=\"colorSets\"\n            (change)=\"changeColorSets($event)\">\n        <option value=\"1\">Sample 1</option>\n        <option value=\"2\">Sample 2</option>\n    </select>\n    <label for=\"tooltip\">\n        <input\n            type=\"checkbox\"\n            name=\"tooltip\"\n            id=\"tooltip\"\n            [checked]=\"tooltipEnabled ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'tooltipEnabled')\" />\n        <span>Enable Tool tip</span>\n    </label>\n</fieldset>\n<fieldset class=\"pick-points\">\n    <legend>Duplicates In result set:</legend>\n    <label for=\"allowduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"allowduplicates\"\n            id=\"allowduplicates\"\n            [value]=\"allowduplicates\"\n            [checked]=\"allowduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'allowduplicates')\" />\n        <span>Allow Duplicates</span>\n    </label>\n    <label for=\"groupduplicates\">\n        <input\n            type=\"checkbox\"\n            name=\"groupduplicates\"\n            id=\"groupduplicates\"\n            [value]=\"groupduplicates\"\n            [checked]=\"groupduplicates ? true: null\"\n            (keyup)=\"keyup($event)\"\n            (click)=\"click($event, 'groupduplicates')\" />\n        <span>Group Duplicates</span>\n    </label>\n</fieldset>\n",
                 styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  padding:5px; }\n  :host .info{\n    padding:5px 0;\n    margin:0;\n    font-size:0.9em; }\n  :host .pick-points{\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border:1px solid #633;\n    display:block;\n    float:left;\n    padding:0 0 5px 0;\n    width:100%;\n    margin:0;\n    border-radius:5px;\n    background-color:#fefefe; }\n    :host .pick-points legend{\n      font-weight:bold;\n      margin-left:20px;\n      color:#633; }\n    :host .pick-points label{\n      display:inline-table;\n      width:24.33%; }\n      :host .pick-points label:hover{\n        color:#ca0000; }\n    :host .pick-points.default label{\n      width:15%;\n      text-align:right; }\n"],
             },] },
 ];
@@ -588,9 +646,7 @@ VisualizationConfigurationComponent.propDecorators = {
     "interestingPoints": [{ type: Input, args: ["interestingPoints",] },],
     "targetKeys": [{ type: Input, args: ["targetKeys",] },],
     "allowduplicates": [{ type: Input, args: ["allowduplicates",] },],
-    "tooltipEnabled": [{ type: Input, args: ["tooltipEnabled",] },],
-    "directionality": [{ type: Input, args: ["directionality",] },],
-    "nodeType": [{ type: Input, args: ["nodeType",] },],
+    "configuration": [{ type: Input, args: ["configuration",] },],
     "groupduplicates": [{ type: Input, args: ["groupduplicates",] },],
     "onchange": [{ type: Output, args: ["onchange",] },],
 };

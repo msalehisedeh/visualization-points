@@ -14,6 +14,7 @@ import {
 
 import { VisualizationPointsMaker } from '../injectables/visualization-points-maker';
 import { VisualizationPointsEvaluator } from '../injectables/visualization-points-evaluator';
+import { D3Configuration } from '../interfaces/interfaces';
 
 @Component({
   selector: 'visualization-points',
@@ -39,14 +40,29 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   @Input("groupduplicates")
   groupduplicates = false;
   
-  @Input("tooltipEnabled")
-  tooltipEnabled = false;
-
-  @Input("directionality")
-  directionality = "L2R";
-
-  @Input("nodeType")
-  nodeType = "Plain";
+  @Input("settings")
+  settings: D3Configuration = {
+    tooltipEnabled: false,
+    directionality: "L2R",
+    nodeType: "Plain",
+    targetDiv: "#d3-container",
+    styles: {
+      links: {
+        colors: {
+          default: "gray",
+          hover: "#fcb2b2",
+          selected: "red"
+        }
+      },
+      nodes: {
+        colors: {
+          default: "#fff",
+          hover: "#fcb2b2",
+          selected: "lightsteelblue"
+        }
+      }
+    }
+  };
 
   @Input("enableConfiguration")
   enableConfiguration: boolean;
@@ -77,12 +93,7 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
                                 this.allowduplicates,
                                 this.groupduplicates);
       const sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-      window['initiateD3'](sizedupPoints, {
-        tooltipEnabled: this.tooltipEnabled, 
-        directionality: this.directionality, 
-        displayNodeType: this.nodeType, 
-        targetDiv: "#d3-container"
-      });
+      window['initiateD3'](sizedupPoints, this.settings);
       this.onVisualization.emit(this.evaluatedPoints);
     } else {
       this.d3Container.nativeElement.innerHTML = "";
@@ -135,22 +146,24 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   }
 
   async ngAfterViewInit() {
-    await this.loadScript("assets/d3.js", 'd3js');
+    if (!window['initiateD3']) {
+      await this.loadScript("assets/d3.js", 'd3js');
+    }
  	}
    
 	private loadScript(url, id) {    
     return new Promise((resolve, reject) => {
-      const script = document.getElementById(id);
-      if (!script) {
+      // const script = document.getElementById(id);
+      // if (!script) {
         const scriptElement = document.createElement('script');
      
         scriptElement.type = "text/javascript";
         scriptElement.src = url;
-        scriptElement.id = id;
+        // scriptElement.id = id;
         scriptElement.onload = resolve;
         
         document.body.appendChild(scriptElement);
-      }
+      // }
 		})
   }
   
@@ -171,9 +184,7 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   onchange(event) {
     this.allowduplicates = event.allowduplicates;
     this.groupduplicates = event.groupduplicates;
-    this.directionality = event.directionality;
-    this.nodeType = event.nodeType;
-    this.tooltipEnabled = event.tooltipEnabled;
+    this.settings = event.configuration;
     this.triggerEvaluation(
       this.sanitize(event.points),
       this.sanitize(event.keys)

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { AppService } from './app.service'
+import { D3Configuration } from './visualization-points/interfaces/interfaces';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,28 @@ export class AppComponent {
   
   myDataSet = [];  
   resultingTree = {};
+  mySettings: D3Configuration = {
+    tooltipEnabled: false,
+    directionality: "L2R",
+    nodeType: "Plain",
+    targetDiv: "#d3-container",
+    styles: {
+      links: {
+        colors: {
+          default: "gray",
+          hover: "#fcb2b2",
+          selected: "red"
+        }
+      },
+      nodes: {
+        colors: {
+          default: "#fff",
+          hover: "#fcb2b2",
+          selected: "lightsteelblue"
+        }
+      }
+    }
+  };
   displayEntry = false;
   pointsOfEntry = undefined;
   pointOfEntry = undefined;
