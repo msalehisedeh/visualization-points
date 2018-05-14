@@ -48,18 +48,29 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
     targetDiv: "#d3-container",
     styles: {
       links: {
-        colors: {
-          default: "gray",
-          hover: "#fcb2b2",
-          selected: "red"
-        }
+        "default-line-color": "gray",
+        "default-size": 1,
+  
+        "hover-line-color": "blue",
+        "hover-line-dasharray": "5,5",
+        "hover-size": 3,
+        
+        "selected-line-color": "red",
+        "selected-size": 1
       },
       nodes: {
-        colors: {
-          default: "#fff",
-          hover: "#fcb2b2",
-          selected: "lightsteelblue"
-        }
+        "default-background-color": "white",
+        "default-line-color": "black",
+        "default-size": 1,
+  
+        "hover-background-color": "lightblue",
+        "hover-line-color": "#fcb2b2",
+        "hover-line-dasharray": "5,10,5",
+        "hover-size": 1.1,
+        
+        "selected-background-color": "orange",
+        "selected-line-color": "red",
+        "selected-size": 1
       }
     }
   };

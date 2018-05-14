@@ -303,18 +303,25 @@ class VisualizationPointsComponent {
             targetDiv: "#d3-container",
             styles: {
                 links: {
-                    colors: {
-                        default: "gray",
-                        hover: "#fcb2b2",
-                        selected: "red"
-                    }
+                    "default-line-color": "gray",
+                    "default-size": 1,
+                    "hover-line-color": "blue",
+                    "hover-line-dasharray": "5,5",
+                    "hover-size": 3,
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 },
                 nodes: {
-                    colors: {
-                        default: "#fff",
-                        hover: "#fcb2b2",
-                        selected: "lightsteelblue"
-                    }
+                    "default-background-color": "white",
+                    "default-line-color": "black",
+                    "default-size": 1,
+                    "hover-background-color": "lightblue",
+                    "hover-line-color": "#fcb2b2",
+                    "hover-line-dasharray": "5,10,5",
+                    "hover-size": 1.1,
+                    "selected-background-color": "orange",
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 }
             }
         };
@@ -481,15 +488,9 @@ VisualizationPointsComponent.decorators = [
     background-color:#fefefe;
     margin:5px; }
   :host ::ng-deep .node circle{
-    cursor:pointer;
-    fill:#fff;
-    stroke:steelblue;
-    stroke-width:1.5px; }
+    cursor:pointer; }
   :host ::ng-deep .node rect{
-    cursor:pointer;
-    fill:#fff;
-    stroke:steelblue;
-    stroke-width:1.5px; }
+    cursor:pointer; }
   :host ::ng-deep div.tooltip{
     position:absolute;
     padding:5px;
@@ -502,10 +503,8 @@ VisualizationPointsComponent.decorators = [
   :host ::ng-deep .node text{
     font-size:11px;
     font-weight:bold; }
-  :host ::ng-deep path.link{
-    fill:none;
-    stroke:#ccc;
-    stroke-width:1.5px; }
+  :host ::ng-deep path{
+    fill:none; }
 `],
             },] },
 ];
@@ -546,18 +545,25 @@ class VisualizationConfigurationComponent {
             targetDiv: "#d3-container",
             styles: {
                 links: {
-                    colors: {
-                        default: "gray",
-                        hover: "#fcb2b2",
-                        selected: "red"
-                    }
+                    "default-line-color": "gray",
+                    "default-size": 1,
+                    "hover-line-color": "#fcb2b2",
+                    "hover-line-dasharray": "5,5",
+                    "hover-size": 1.1,
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 },
                 nodes: {
-                    colors: {
-                        default: "#fff",
-                        hover: "#fcb2b2",
-                        selected: "lightsteelblue"
-                    }
+                    "default-background-color": "white",
+                    "default-line-color": "gray",
+                    "default-size": 1,
+                    "hover-background-color": "lightblue",
+                    "hover-line-color": "#fcb2b2",
+                    "hover-line-dasharray": "5,10,5",
+                    "hover-size": 1.1,
+                    "selected-background-color": "orange",
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 }
             }
         };
@@ -596,27 +602,55 @@ class VisualizationConfigurationComponent {
      */
     changeColorSets(event) {
         if (event.target.value == 1) {
-            this.configuration.styles.links.colors = {
-                default: "gray",
-                hover: "#fcb2b2",
-                selected: "red"
+            this.configuration.styles.links = {
+                "hover-line-dasharray": "5,10,5",
+                "default-size": 1,
+                "hover-size": 3,
+                "selected-size": 1,
+                "default-line-color": "lightsteelblue",
+                "hover-line-color": "#fcb2b2",
+                "selected-line-color": "red"
             };
-            this.configuration.styles.nodes.colors = {
-                default: "#fff",
-                hover: "#fcb2b2",
-                selected: "lightsteelblue"
+            this.configuration.styles.nodes = {
+                "default-background-color": "white",
+                "hover-background-color": "#fcb2b2",
+                "hover-line-dasharray": "5,5",
+                "selected-background-color": "lightsteelblue",
+                "default-size": 1,
+                "hover-size": 1.5,
+                "selected-size": 1.3,
+                "default-line-color": "blue",
+                "hover-line-color": "black",
+                "selected-line-color": "red",
+                "default-label-color": "black",
+                "hover-label-color": "blue",
+                "selected-label-color": "red"
             };
         }
         else {
-            this.configuration.styles.links.colors = {
-                default: "green",
-                hover: "#cad2d2",
-                selected: "#f58c24"
+            this.configuration.styles.links = {
+                "default-line-dasharray": "5,10,5",
+                "default-size": 1.2,
+                "hover-size": 2.2,
+                "selected-size": 1.3,
+                "default-line-color": "green",
+                "hover-line-color": "blue",
+                "selected-line-color": "#f58c24"
             };
-            this.configuration.styles.nodes.colors = {
-                default: "yellow",
-                hover: "#cad2d2",
-                selected: "blue"
+            this.configuration.styles.nodes = {
+                "default-background-color": "yellow",
+                "default-line-dasharray": "5,5",
+                "hover-background-color": "#cad2d2",
+                "selected-background-color": "blue",
+                "default-size": 1,
+                "hover-size": 2.5,
+                "selected-size": 1.9,
+                "default-line-color": "red",
+                "hover-line-color": "blue",
+                "selected-line-color": "#f58c24",
+                "default-label-color": "black",
+                "hover-label-color": "blue",
+                "selected-label-color": "red"
             };
         }
         this.emitChange();

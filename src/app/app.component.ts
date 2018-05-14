@@ -29,20 +29,38 @@ export class AppComponent {
     directionality: "L2R",
     nodeType: "Plain",
     targetDiv: "#d3-container",
+    onclick: (event: any) => {},
+    onhover: (event: any) => {},
     styles: {
       links: {
-        colors: {
-          default: "gray",
-          hover: "#fcb2b2",
-          selected: "red"
-        }
+        "default-line-color": "gray",  
+        "hover-line-color": "blue",
+        "selected-line-color": "red",
+        
+        "hover-line-dasharray": "5,5",
+
+        "default-size": 1,
+        "hover-size": 3,
+        "selected-size": 1
       },
       nodes: {
-        colors: {
-          default: "#fff",
-          hover: "#fcb2b2",
-          selected: "lightsteelblue"
-        }
+        "default-background-color": "white",
+        "hover-background-color": "lightblue",
+        "selected-background-color": "orange",
+
+        "default-line-color": "black",
+        "hover-line-color": "#fcb2b2",
+        "selected-line-color": "red",
+
+        "default-label-color": "blue",
+        "hover-label-color": "#f00",
+        "selected-label-color": "green",
+
+        "hover-line-dasharray": "5,10,5",
+
+        "default-size": 1,
+        "hover-size": 1.5,
+        "selected-size": 1.3
       }
     }
   };

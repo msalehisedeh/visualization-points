@@ -376,18 +376,25 @@ var VisualizationPointsComponent = (function () {
             targetDiv: "#d3-container",
             styles: {
                 links: {
-                    colors: {
-                        default: "gray",
-                        hover: "#fcb2b2",
-                        selected: "red"
-                    }
+                    "default-line-color": "gray",
+                    "default-size": 1,
+                    "hover-line-color": "blue",
+                    "hover-line-dasharray": "5,5",
+                    "hover-size": 3,
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 },
                 nodes: {
-                    colors: {
-                        default: "#fff",
-                        hover: "#fcb2b2",
-                        selected: "lightsteelblue"
-                    }
+                    "default-background-color": "white",
+                    "default-line-color": "black",
+                    "default-size": 1,
+                    "hover-background-color": "lightblue",
+                    "hover-line-color": "#fcb2b2",
+                    "hover-line-dasharray": "5,10,5",
+                    "hover-size": 1.1,
+                    "selected-background-color": "orange",
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 }
             }
         };
@@ -538,7 +545,7 @@ VisualizationPointsComponent.decorators = [
     { type: core.Component, args: [{
                 selector: 'visualization-points',
                 template: "\n<div class=\"configuration\" *ngIf=\"enableConfiguration && interestingPoints\">\n    <visualization-configuration\n        [interestingPoints]=\"interestingPoints\"\n        [targetKeys]=\"targetKeys\"\n        [configuration]=\"settings\"\n        [allowduplicates]=\"allowduplicates\"\n        [groupduplicates]=\"groupduplicates\"\n        (onchange)=\"onchange($event)\"></visualization-configuration>\n</div>\n<div class=\"d3-container\" id=\"d3-container\" #d3Container></div>\n",
-                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep .node rect{\n    cursor:pointer;\n    fill:#fff;\n    stroke:steelblue;\n    stroke-width:1.5px; }\n  :host ::ng-deep div.tooltip{\n    position:absolute;\n    padding:5px;\n    font:12px sans-serif;\n    background:#cfcfcf;\n    border:1px solid #3a3939;\n    border-radius:4px;\n    pointer-events:none;\n    z-index:5; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path.link{\n    fill:none;\n    stroke:#ccc;\n    stroke-width:1.5px; }\n"],
+                styles: [":host{\n  -webkit-box-sizing:border-box;\n          box-sizing:border-box;\n  display:table;\n  position:relative;\n  width:100%; }\n  :host #d3-container{\n    border:1px solid #633;\n    padding:0 5px;\n    -webkit-box-sizing:border-box;\n            box-sizing:border-box;\n    border-radius:5px;\n    background-color:#fefefe;\n    margin:5px; }\n  :host ::ng-deep .node circle{\n    cursor:pointer; }\n  :host ::ng-deep .node rect{\n    cursor:pointer; }\n  :host ::ng-deep div.tooltip{\n    position:absolute;\n    padding:5px;\n    font:12px sans-serif;\n    background:#cfcfcf;\n    border:1px solid #3a3939;\n    border-radius:4px;\n    pointer-events:none;\n    z-index:5; }\n  :host ::ng-deep .node text{\n    font-size:11px;\n    font-weight:bold; }\n  :host ::ng-deep path{\n    fill:none; }\n"],
             },] },
 ];
 /** @nocollapse */
@@ -577,18 +584,25 @@ var VisualizationConfigurationComponent = (function () {
             targetDiv: "#d3-container",
             styles: {
                 links: {
-                    colors: {
-                        default: "gray",
-                        hover: "#fcb2b2",
-                        selected: "red"
-                    }
+                    "default-line-color": "gray",
+                    "default-size": 1,
+                    "hover-line-color": "#fcb2b2",
+                    "hover-line-dasharray": "5,5",
+                    "hover-size": 1.1,
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 },
                 nodes: {
-                    colors: {
-                        default: "#fff",
-                        hover: "#fcb2b2",
-                        selected: "lightsteelblue"
-                    }
+                    "default-background-color": "white",
+                    "default-line-color": "gray",
+                    "default-size": 1,
+                    "hover-background-color": "lightblue",
+                    "hover-line-color": "#fcb2b2",
+                    "hover-line-dasharray": "5,10,5",
+                    "hover-size": 1.1,
+                    "selected-background-color": "orange",
+                    "selected-line-color": "red",
+                    "selected-size": 1
                 }
             }
         };
@@ -627,27 +641,55 @@ var VisualizationConfigurationComponent = (function () {
      */
     VisualizationConfigurationComponent.prototype.changeColorSets = function (event) {
         if (event.target.value == 1) {
-            this.configuration.styles.links.colors = {
-                default: "gray",
-                hover: "#fcb2b2",
-                selected: "red"
+            this.configuration.styles.links = {
+                "hover-line-dasharray": "5,10,5",
+                "default-size": 1,
+                "hover-size": 3,
+                "selected-size": 1,
+                "default-line-color": "lightsteelblue",
+                "hover-line-color": "#fcb2b2",
+                "selected-line-color": "red"
             };
-            this.configuration.styles.nodes.colors = {
-                default: "#fff",
-                hover: "#fcb2b2",
-                selected: "lightsteelblue"
+            this.configuration.styles.nodes = {
+                "default-background-color": "white",
+                "hover-background-color": "#fcb2b2",
+                "hover-line-dasharray": "5,5",
+                "selected-background-color": "lightsteelblue",
+                "default-size": 1,
+                "hover-size": 1.5,
+                "selected-size": 1.3,
+                "default-line-color": "blue",
+                "hover-line-color": "black",
+                "selected-line-color": "red",
+                "default-label-color": "black",
+                "hover-label-color": "blue",
+                "selected-label-color": "red"
             };
         }
         else {
-            this.configuration.styles.links.colors = {
-                default: "green",
-                hover: "#cad2d2",
-                selected: "#f58c24"
+            this.configuration.styles.links = {
+                "default-line-dasharray": "5,10,5",
+                "default-size": 1.2,
+                "hover-size": 2.2,
+                "selected-size": 1.3,
+                "default-line-color": "green",
+                "hover-line-color": "blue",
+                "selected-line-color": "#f58c24"
             };
-            this.configuration.styles.nodes.colors = {
-                default: "yellow",
-                hover: "#cad2d2",
-                selected: "blue"
+            this.configuration.styles.nodes = {
+                "default-background-color": "yellow",
+                "default-line-dasharray": "5,5",
+                "hover-background-color": "#cad2d2",
+                "selected-background-color": "blue",
+                "default-size": 1,
+                "hover-size": 2.5,
+                "selected-size": 1.9,
+                "default-line-color": "red",
+                "hover-line-color": "blue",
+                "selected-line-color": "#f58c24",
+                "default-label-color": "black",
+                "hover-label-color": "blue",
+                "selected-label-color": "red"
             };
         }
         this.emitChange();

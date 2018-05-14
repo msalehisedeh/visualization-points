@@ -10715,20 +10715,41 @@ var configuration = {
   directionality: "L2R",
   nodeType: "Plain",
   targetDiv: "#d3-container",
+  baseRectangle: { x: -18, y: -11, width: 36, height: 22},
+  baseCircle: { x: -18, y: -11, r: 18},
+  onclick: function(){},
+  onhover: function(){},
   styles: {
     links: {
-      colors: {
-        default: "gray",
-        hover: "#fcb2b2",
-        selected: "red"
-      }
+      "default-background-color": "gray",
+      "default-line-color": "gray",
+      "default-size": 1,
+
+      "hover-background-color": "#fcb2b2",
+      "hover-line-color": "#fcb2b2",
+      "hover-line-dasharray": "5,5",
+      "hover-size": 1.1,
+      
+      "selected-background-color": "orange",
+      "selected-line-color": "red",
+      "selected-size": 1
     },
     nodes: {
-      colors: {
-        default: "#fff",
-        hover: "#fcb2b2",
-        selected: "lightsteelblue"
-      }
+      "default-background-color": "white",
+      "default-line-color": "gray",
+      "default-label-color": "black",
+      "default-size": 1,
+
+      "hover-background-color": "lightblue",
+      "hover-line-color": "#fcb2b2",
+      "hover-label-color": "black",
+      "hover-line-dasharray": "5,10,5",
+      "hover-size": 1.1,
+      
+      "selected-background-color": "orange",
+      "selected-line-color": "red",
+      "selected-label-color": "black",
+      "selected-size": 1
     }
   }
 };
@@ -10750,35 +10771,164 @@ function tracePath(node, flag) {
     parent.traced = flag;
     parent = parent.parent;
   }
-  d3.selectAll("path").style("stroke", function(d) {
+  d3.selectAll("path")
+  .style("stroke", function(d) {
     return d.target.traced ? 
-              configuration.styles.links.colors.hover : 
+              configuration.styles.links["hover-line-color"] : 
               (d.target.selected ? 
-                configuration.styles.links.colors.selected : 
-                configuration.styles.links.colors.default);
+                configuration.styles.links["selected-line-color"] : 
+                configuration.styles.links["default-line-color"]);
+  })
+  .style("stroke-dasharray", function(d) {
+    var x = configuration.styles.links["selected-line-dasharray"];
+    var y = configuration.styles.links["default-line-dasharray"];
+    var z = configuration.styles.links["hover-line-dasharray"];
+    return d.target.traced ? (z ? z : "1000,0") : d.target.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+  })
+  .attr("stroke-width", function (d) {
+    return d.target.traced ? 
+            configuration.styles.links["hover-size"] : 
+            (d.target.selected ? 
+              configuration.styles.links["selected-size"] :
+              configuration.styles.links["default-size"]);
   });
-  d3.selectAll("g.node").style("fill", function(d) {
+  d3.selectAll("g.node")
+  .style("fill", function(d) {
     return d.traced ? 
-              configuration.styles.links.colors.hover : 
+              configuration.styles.nodes["hover-line-color"] : 
               (d.selected ? 
-                configuration.styles.links.colors.selected : 
-                "#000");
-  });
+                configuration.styles.nodes["selected-line-color"] : 
+                configuration.styles.nodes["default-line-color"]);
+  })
   if (configuration.nodeType === "Rectangle") {
     d3.selectAll("rect")
+      .attr("width", function (d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        return configuration.baseRectangle.width * factor; 
+      })
+      .attr("height", function (d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        return configuration.baseRectangle.height * factor; 
+      })
+      .attr("x", function (d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        return configuration.baseRectangle.x * factor; 
+      })
+      .attr("y", function (d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        return configuration.baseRectangle.y * factor; 
+      })
+      .style("fill", function(d) {
+        return d.traced ? 
+              configuration.styles.nodes["hover-background-color"] : 
+              (d.selected ?
+                configuration.styles.nodes["selected-background-color"] :
+                configuration.styles.nodes["default-background-color"]);
+      })
       .style("stroke", function(d) {
         return d.traced ? 
-                configuration.styles.links.colors.hover : 
-                configuration.styles.links.colors.default;
+              configuration.styles.nodes["hover-line-color"] : 
+              (d.selected ? 
+                configuration.styles.nodes["selected-line-color"] :
+                configuration.styles.nodes["default-line-color"]);
+      })
+      .style("stroke-dasharray", function(d) {
+        var x = configuration.styles.nodes["selected-line-dasharray"];
+        var y = configuration.styles.nodes["default-line-dasharray"];
+        var z = configuration.styles.nodes["hover-line-dasharray"];
+        return d.traced ? (z ? z : "1000,0") : d.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+      })
+      .attr("stroke-width", function (d) {
+        return d.traced ? 
+                configuration.styles.nodes["hover-size"] : 
+                (d.selected ? 
+                  configuration.styles.nodes["selected-size"] :
+                  configuration.styles.nodes["default-size"]);
       });
   } else {
+    if (configuration.nodeType === "Circle") {
+      d3.selectAll("circle")
+      .attr("x", function(d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        
+        return configuration.baseCircle.x * factor;
+      })
+      .attr("y", function(d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        
+        return configuration.baseCircle.y * factor;
+      })
+      .attr("r", function(d) {
+        var factor = d.traced ? 
+                      configuration.styles.nodes["hover-size"] : 
+                      (d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"]);
+        
+        return configuration.baseCircle.r * factor;
+      });
+    }
     d3.selectAll("circle")
       .style("stroke", function(d) {
         return d.traced ? 
-                configuration.styles.links.colors.hover : 
-                configuration.styles.links.colors.default;
+              configuration.styles.nodes["hover-line-color"] : 
+              (d.selected ?
+                configuration.styles.nodes["selected-line-color"] :
+                configuration.styles.nodes["default-line-color"]);
+      })
+      .style("fill", function(d) {
+        return d.traced ? 
+              configuration.styles.nodes["hover-background-color"] : 
+              (d.selected ?
+                configuration.styles.nodes["selected-background-color"] :
+                configuration.styles.nodes["default-background-color"]);
+      })
+      .style("stroke-dasharray", function(d) {
+        var x = configuration.styles.nodes["selected-line-dasharray"];
+        var y = configuration.styles.nodes["default-line-dasharray"];
+        var z = configuration.styles.nodes["hover-line-dasharray"];
+        return d.traced ? (z ? z : "1000,0") : d.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+      })
+      .attr("stroke-width", function (d) {
+        return d.traced ? 
+                configuration.styles.nodes["hover-size"] : 
+                (d.selected ? 
+                  configuration.styles.nodes["selected-size"] :
+                  configuration.styles.nodes["default-size"]);
       });  
   }
+  d3.selectAll("text")
+  .style("fill", function(d) {
+    return d.traced ? 
+            configuration.styles.nodes["hover-label-color"] : 
+            (d.selected ? 
+              configuration.styles.nodes["selected-label-color"] : 
+              configuration.styles.nodes["default-label-color"]);
+  });  
 }
 function deselect(node) {
   node.selected = false;
@@ -10803,31 +10953,133 @@ function selectPath(node, flag) {
     parent.selected = flag;
     parent = parent.parent;
   }
-  d3.selectAll("path").style("stroke", function(d) {
+  d3.selectAll("path")
+  .style("stroke", function(d) {
     return d.target.selected ? 
-              configuration.styles.links.colors.selected : 
-              configuration.styles.links.colors.default;
+              configuration.styles.links["selected-line-color"] : 
+              configuration.styles.links["default-line-color"];
+  })
+  .style("stroke-dasharray", function(d) {
+    var x = configuration.styles.links["selected-line-dasharray"];
+    var y = configuration.styles.links["default-line-dasharray"];
+    return d.target.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+  })
+  .attr("stroke-width", function (d) {
+    return d.target.selected ? 
+      configuration.styles.links["selected-size"] :
+      configuration.styles.links["default-size"];
   });
-  d3.selectAll("g.node").style("fill", function(d) {
+  d3.selectAll("g.node")
+  .style("fill", function(d) {
     return d.selected ? 
-                configuration.styles.links.colors.selected : 
-                "#000";
+              configuration.styles.nodes["selected-line-color"] : 
+              configuration.styles.nodes["default-line-color"];
   });
   if (configuration.nodeType === "Rectangle") {
     d3.selectAll("rect")
+    .attr("width", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseRectangle.width * factor; 
+    })
+    .attr("height", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseRectangle.height * factor; 
+    })
+    .attr("x", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseRectangle.x * factor; 
+    })
+    .attr("y", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseRectangle.y * factor; 
+    })
+    .attr("fill", function (d) {
+        return d.selected ? 
+              configuration.styles.nodes["selected-background-color"] : 
+              configuration.styles.nodes["default-background-color"];
+      })
       .style("stroke", function(d) {
         return d.selected ? 
-                configuration.styles.links.colors.selected : 
-                configuration.styles.nodes.colors.selected;
-      });  
+              configuration.styles.nodes["selected-line-color"] : 
+              configuration.styles.nodes["default-line-color"];
+      })
+      .style("stroke-dasharray", function(d) {
+        var x = configuration.styles.nodes["selected-line-dasharray"];
+        var y = configuration.styles.nodes["default-line-dasharray"];
+        return d.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+      })
+      .attr("stroke-width", function (d) {
+        return d.selected ? 
+          configuration.styles.nodes["selected-size"] :
+          configuration.styles.nodes["default-size"];
+      });
   } else {
+    if (configuration.nodeType === "Circle") {
+      d3.selectAll("circle")
+        .attr("x", function(d) {
+          var factor = d.traced ? 
+                        configuration.styles.nodes["hover-size"] : 
+                        (d.selected ? 
+                          configuration.styles.nodes["selected-size"] :
+                          configuration.styles.nodes["default-size"]);
+          
+          return configuration.baseCircle.x * factor;
+        })
+        .attr("y", function(d) {
+          var factor = d.traced ? 
+                        configuration.styles.nodes["hover-size"] : 
+                        (d.selected ? 
+                          configuration.styles.nodes["selected-size"] :
+                          configuration.styles.nodes["default-size"]);
+          
+          return configuration.baseCircle.y * factor;
+        })
+        .attr("r", function(d) {
+          var factor = d.traced ? 
+                        configuration.styles.nodes["hover-size"] : 
+                        (d.selected ? 
+                          configuration.styles.nodes["selected-size"] :
+                          configuration.styles.nodes["default-size"]);
+          
+          return configuration.baseCircle.r * factor;
+        });
+    }
     d3.selectAll("circle")
+      .attr("fill", function (d) {
+        return d.selected ? 
+              configuration.styles.nodes["selected-background-color"] : 
+              configuration.styles.nodes["default-background-color"];
+      })
       .style("stroke", function(d) {
         return d.selected ? 
-                configuration.styles.links.colors.selected : 
-                configuration.styles.nodes.colors.selected;
-      });  
+              configuration.styles.nodes["selected-line-color"] : 
+              configuration.styles.nodes["default-line-color"];
+      })
+      .style("stroke-dasharray", function(d) {
+        var x = configuration.styles.nodes["selected-line-dasharray"];
+        var y = configuration.styles.nodes["default-line-dasharray"];
+        return d.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+      })
+      .attr("stroke-width", function (d) {
+        return d.selected ? 
+          configuration.styles.nodes["selected-size"] :
+          configuration.styles.nodes["default-size"];
+      });
   }
+  d3.selectAll("text")
+  .style("fill", function(d) {
+    return d.selected ? 
+          configuration.styles.nodes["selected-label-color"] : 
+          configuration.styles.nodes["default-label-color"];
+  });  
 }
 function nodeCount(children, counter) {
   if (children) {
@@ -10861,6 +11113,8 @@ function resize(rootNode) {
     var width =  333 + (nodeCount(rootNode.children, 0) * 28);
     var height = depth < 4 ? 800 : depth * 400;
   
+    width = width < 800 ? 800 : width;
+    
     w = width - m[1] - m[3];
     h = height - m[0] - m[2];
   
@@ -10889,9 +11143,55 @@ function resize(rootNode) {
   }
   return rootNode;
 }
+function setupConfiguration(config) {
+  if (config.styles.links.colors) {
+    configuration.styles.links["default-line-color"] = config.styles.links.colors.default;
+    configuration.styles.links["default-size"] = 1;
+
+    configuration.styles.links["hover-line-color"] = config.styles.links.colors.hover;
+    configuration.styles.links["hover-size"] = 1.1;
+
+    configuration.styles.links["selected-line-color"] = config.styles.links.colors.selected;
+    configuration.styles.links["selected-size"] = 1;
+  } else {
+    configuration.styles.links = config.styles.links;
+  }
+  if (config.styles.nodes.colors) {
+    configuration.styles.nodes["default-background-color"] = config.styles.nodes.colors.default;
+    configuration.styles.nodes["default-line-color"] = config.styles.links.colors.default;
+    configuration.styles.nodes["default-label-color"] = "black";
+    configuration.styles.nodes["default-size"] = 1;
+
+    configuration.styles.nodes["hover-background-color"] = config.styles.nodes.colors.hover;
+    configuration.styles.nodes["hover-line-color"] = config.styles.links.colors.hover;
+    configuration.styles.nodes["hover-label-color"] = "black";
+    configuration.styles.nodes["hover-size"] = 1.1;
+
+    configuration.styles.nodes["selected-background-color"] = config.styles.nodes.colors.selected;
+    configuration.styles.nodes["selected-line-color"] = config.styles.links.colors.selected;
+    configuration.styles.nodes["selected-label-color"] = "black";
+    configuration.styles.nodes["selected-size"] = 1;
+  } else {
+    configuration.styles.nodes = config.styles.nodes;    
+  }
+  if (config.baseRectangle) {
+    configuration.baseRectangle = config.baseRectangle;
+  }
+  if (config.baseCircle) {
+    configuration.baseCircle = config.baseCircle;
+  }
+  configuration.tooltipEnabled = config.tooltipEnabled;
+  configuration.directionality = config.directionality;
+  configuration.nodeType = config.nodeType;
+  configuration.targetDiv = config.targetDiv;
+  configuration.onclick = config.onclick;
+  configuration.onhover = config.onhover;
+  configuration.targetDiv = config.targetDiv;
+
+}
 function initiateD3(rootNode, config) {
 
-  configuration = config; 
+  setupConfiguration(config);
   var zoom = d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
   if (configuration.tooltipEnabled) {
     tooltip = d3.select(configuration.targetDiv).append("div").attr("class", "tooltip").style("opacity", 0);
@@ -10921,6 +11221,7 @@ function toggleAll(d) {
 function zoomed() {
   vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
+
 function update(source) {
   var duration = d3.event && d3.event.altKey ? 5000 : 500;
 
@@ -10949,7 +11250,6 @@ function update(source) {
                     "translate(" + source.y0 + "," + source.x0 + ")"; 
       })
       .on("mouseover", function(d) {
-        d3.select(this).style("fill", configuration.styles.nodes.colors.selected);
         tracePath(d, true);
         if (tooltip && d.data) {
           var content = "";
@@ -10970,11 +11270,13 @@ function update(source) {
               .duration(200)		
               .style("opacity", .9);		
           tooltip.style("left", (d3.event.pageX - 100) + "px")		
-              .style("top", (d3.event.pageY - 100) + "px");						
+              .style("top", (d3.event.pageY - 100) + "px");  
+        }
+        if (configuration.onhover) {
+          configuration.onhover({name: d.name, data:d.data ? d.data : d.parent.data});
         }
       })
       .on("mouseout", function(d) {
-        d3.select(this).style("fill", "#000");
         tracePath(d, false);
         if (tooltip && d.data) {
           tooltip.transition().duration(500).style("opacity", 0);	
@@ -10983,21 +11285,37 @@ function update(source) {
       .on("click", function(d) { 
         toggle(d); 
         update(d);
+        if (configuration.onclick) {
+          configuration.onclick({name: d.name, data:d.data ? d.data : d.parent.data});
+        }
       });
 
   if (configuration.nodeType === "Rectangle") {
     nodeEnter.append("svg:rect")
-      .attr("width", 36)
-      .attr("height", 22)
-      .attr("x", function(d) { return  -18 })
-      .attr("y", function(d) { return  -11 })
-      .attr("stroke", "black")
-      .attr("stroke-width", 1)
-      .style("fill", function (d) {
-        return d._children ? 
-                configuration.styles.nodes.colors.selected : 
-                configuration.styles.nodes.colors.default;
+      .attr("width", function (d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        return configuration.baseRectangle.width * factor; 
+      })
+      .attr("height", function (d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        return configuration.baseRectangle.height * factor; 
+      })
+      .attr("x", function (d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        return configuration.baseRectangle.x * factor; 
+      }).attr("y", function (d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        return configuration.baseRectangle.y * factor; 
       });
+
     if (configuration.directionality === "L2R") {
       nodeEnter.append("svg:text")
       .attr("y", ".35em")
@@ -11016,15 +11334,26 @@ function update(source) {
     }
   } else if (configuration.nodeType === "Circle") {
     nodeEnter.append("svg:circle")
-      .attr("x", function(d) { return  -18 })
-      .attr("y", function(d) { return  -11 })
-      .attr("r", 18)
-      .attr("stroke", "black")
-      .attr("stroke-width", 1)
-      .style("fill", function (d) {
-        return d._children ? 
-                  configuration.styles.nodes.colors.selected : 
-                  configuration.styles.nodes.colors.default;
+      .attr("x", function(d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        
+        return configuration.baseCircle.x * factor;
+      })
+      .attr("y", function(d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        
+        return configuration.baseCircle.y * factor;
+      })
+      .attr("r", function(d) {
+        var factor = d.selected ? 
+                        configuration.styles.nodes["selected-size"] :
+                        configuration.styles.nodes["default-size"];
+        
+        return configuration.baseCircle.r * factor;
       });
 
       if (configuration.directionality === "L2R") {
@@ -11046,11 +11375,6 @@ function update(source) {
     } else {
     nodeEnter.append("svg:circle")
     .attr("r", 1e-6)
-    .style("fill", function(d) { 
-      return d._children ? 
-              configuration.styles.nodes.colors.selected : 
-              configuration.styles.nodes.colors.default; 
-    });
 
     if (configuration.directionality === "L2R") {
       nodeEnter.append("svg:text")
@@ -11087,38 +11411,31 @@ function update(source) {
 
   if (configuration.nodeType === "Rectangle") {
     nodeUpdate.select("rect")
-        .attr("width", 36)
-        .attr("height", 22)
-        .attr("stroke", "black")
-        .attr("stroke-width", 1)
-        .style("fill", function (d) {
-        return d._children ? 
-                configuration.styles.nodes.colors.selected : 
-                configuration.styles.nodes.colors.default;
+    .attr("width", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseRectangle.width * factor; 
+    })
+    .attr("height", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseRectangle.height * factor; 
     });
 
     nodeUpdate.select("text").style("fill-opacity", 1);
   } else if (configuration.nodeType === "Circle") {
-    nodeUpdate.select("rect")
-        .attr("r", 18)
-        .attr("stroke", "black")
-        .attr("stroke-width", 1)
-        .style("fill", function (d) {
-        return d._children ? 
-                configuration.styles.nodes.colors.selected : 
-                configuration.styles.nodes.colors.default;
-    });
+    nodeUpdate.select("circle").attr("r", function (d) {
+      var factor = d.selected ? 
+                      configuration.styles.nodes["selected-size"] :
+                      configuration.styles.nodes["default-size"];
+      return configuration.baseCircle.r * factor; 
+    })
 
     nodeUpdate.select("text").style("fill-opacity", 1);
   } else {
-    nodeUpdate.select("circle")
-      .attr("r", 4.5)
-      .style("fill", function(d) { 
-        return d._children ? 
-                configuration.styles.nodes.colors.selected : 
-                configuration.styles.nodes.colors.default; 
-      });
-
+    nodeUpdate.select("circle").attr("r", 4.5)
     nodeUpdate.select("text").style("fill-opacity", 1);
   }
 
@@ -11131,30 +11448,6 @@ function update(source) {
             "translate(" + source.y + "," + source.x + ")";
       })
       .remove();
-
-  if (configuration.nodeType === "Rectangle") {
-    nodeExit.select("rect")
-        .attr("width", 36)
-        .attr("height", 22)
-      //.attr("width", bbox.getBBox().width)""
-      //.attr("height", bbox.getBBox().height)
-        .attr("stroke", "black")
-        .attr("stroke-width", 1);
-
-    nodeExit.select("text");
-  } else if (configuration.nodeType === "Circle") {
-    nodeExit.select("circle")
-        .attr("r", 18)
-      //.attr("width", bbox.getBBox().width)""
-      //.attr("height", bbox.getBBox().height)
-        .attr("stroke", "black")
-        .attr("stroke-width", 1);
-
-    nodeExit.select("text");
-  } else {
-    nodeExit.select("circle").attr("r", 1e-6);
-    nodeExit.select("text").style("fill-opacity", 1e-6);
-  }
 
   // Update the links…
   var link = vis.selectAll("path.link")

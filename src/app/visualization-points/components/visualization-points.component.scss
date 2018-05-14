@@ -15,15 +15,9 @@
 
   ::ng-deep .node circle {
     cursor: pointer;
-    fill: #fff;
-    stroke: steelblue;
-    stroke-width: 1.5px;
   }
   ::ng-deep .node rect {
     cursor: pointer;
-    fill: #fff;
-    stroke: steelblue;
-    stroke-width: 1.5px;
   }
   ::ng-deep div.tooltip {	
     position: absolute;			
@@ -41,10 +35,8 @@
     font-weight: bold;
   }
   
-  ::ng-deep path.link {
+  ::ng-deep path {
     fill: none;
-    stroke: #ccc;
-    stroke-width: 1.5px;
   }
 
 }
