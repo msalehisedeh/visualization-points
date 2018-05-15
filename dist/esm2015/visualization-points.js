@@ -360,11 +360,31 @@ class VisualizationPointsComponent {
         }
     }
     /**
-     * @param {?} chages
+     * @param {?} originalNode
+     * @param {?} refrenceAttribute
      * @return {?}
      */
-    ngOnChanges(chages) {
-        if (chages.data) {
+    updateNodeDataRefrence(originalNode, refrenceAttribute) {
+        window['updateNodeDataRefrence'](originalNode, refrenceAttribute);
+    }
+    /**
+     * @return {?}
+     */
+    startBlinking() {
+        window['startBlinking'](this.settings);
+    }
+    /**
+     * @return {?}
+     */
+    stopBlinking() {
+        window['stopBlinking']();
+    }
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    ngOnChanges(changes) {
+        if (changes.data) {
             this.interestingPoints = undefined;
             this.targetKeys = undefined;
             setTimeout(this.ngOnInit.bind(this), 333);
@@ -543,6 +563,7 @@ class VisualizationConfigurationComponent {
             directionality: "L2R",
             nodeType: "Plain",
             targetDiv: "#d3-container",
+            blinkAttributesWatch: [],
             styles: {
                 links: {
                     "default-line-color": "gray",

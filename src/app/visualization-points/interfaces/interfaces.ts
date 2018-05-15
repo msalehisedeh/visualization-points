@@ -7,6 +7,7 @@ export interface D3Configuration {
     targetDiv: string,
     baseRectangle?: { x: number, y: number, width: number, height: number},
     baseCircle?: { x: number, y: number, r: number},
+    blinkAttributesWatch?: string[], // if a node attribute is set then blink the node and its path
     onclick?: any,
     onhover?: any,
     styles: {

@@ -10710,11 +10710,15 @@ function d3_layout_treemapPad(node, padding) {
 
 var root;
 var tooltip;
+var blinkers = {};
+var blinkIntervals;
+var blinked = false;
 var configuration = {
   tooltipEnabled: false,
   directionality: "L2R",
   nodeType: "Plain",
   targetDiv: "#d3-container",
+  blinkAttributesWatch: [],
   baseRectangle: { x: -18, y: -11, width: 36, height: 22},
   baseCircle: { x: -18, y: -11, r: 18},
   onclick: function(){},
@@ -11180,6 +11184,7 @@ function setupConfiguration(config) {
   if (config.baseCircle) {
     configuration.baseCircle = config.baseCircle;
   }
+  configuration.blinkAttributesWatch = config.blinkAttributesWatch ? config.blinkAttributesWatch : [];
   configuration.tooltipEnabled = config.tooltipEnabled;
   configuration.directionality = config.directionality;
   configuration.nodeType = config.nodeType;
@@ -11189,9 +11194,11 @@ function setupConfiguration(config) {
   configuration.targetDiv = config.targetDiv;
 
 }
+
 function initiateD3(rootNode, config) {
 
   setupConfiguration(config);
+  stopBlinking();
   var zoom = d3.behavior.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
   if (configuration.tooltipEnabled) {
     tooltip = d3.select(configuration.targetDiv).append("div").attr("class", "tooltip").style("opacity", 0);
@@ -11211,6 +11218,91 @@ function initiateD3(rootNode, config) {
   tracePath(root, false);  
 }
 window['initiateD3'] = initiateD3;
+
+function blink() {
+  var list = Object.keys(blinkers);
+  blinked = !blinked;
+  for (var i = 0; i < list.length; i++) {
+    var key = list[i];
+    var d = blinkers[key];
+    var parent = d.parent;
+
+    d.blink = blinked;
+    while (parent) {
+      parent.blink = blinked;
+      parent = parent.parent;
+    }  
+  }
+  d3.selectAll("path")
+  .style("stroke", function(d) {
+    return d.target.blink ? 
+              configuration.styles.links["hover-line-color"] : 
+              (d.target.selected ? 
+                configuration.styles.links["selected-line-color"] : 
+                configuration.styles.links["default-line-color"]);
+  })
+  .style("stroke-dasharray", function(d) {
+    var x = configuration.styles.links["selected-line-dasharray"];
+    var y = configuration.styles.links["default-line-dasharray"];
+    var z = configuration.styles.links["hover-line-dasharray"];
+    return d.target.blink ? (z ? z : "1000,0") : d.target.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+  })
+  .attr("stroke-width", function (d) {
+    return d.target.blink ? 
+            configuration.styles.links["hover-size"] : 
+            (d.target.selected ? 
+              configuration.styles.links["selected-size"] :
+              configuration.styles.links["default-size"]);
+  });
+}
+function updateNodeDataRefrence(originalNode, refrenceAttribute) {
+  var value = originalNode[refrenceAttribute];
+  var nodes = tree.nodes(root).reverse();
+
+  nodes.forEach(function(d) {
+    if (d.data) {
+      if (d.data[refrenceAttribute] == value) {
+        d.data = JSON.parse(JSON.stringify(originalNode));
+      }
+    }
+  });
+}
+window["updateNodeDataRefrence"] = updateNodeDataRefrence;
+
+// will go to each D3 node and if any attribute of configuration.blinkAttributes exist in 
+// node.data and is set to true, will blink that node and its path.
+function startBlinking(config) {
+  setupConfiguration(config);
+
+  var list = configuration.blinkAttributesWatch;
+  var nodes = tree.nodes(root).reverse();
+  
+  nodes.forEach(function(d) {
+    if (d.data) {
+      for (var i=0; i < list.length; i++) {
+        var att = list[i];
+        if (d.data[att] === true) {
+          if (!blinkers[d.id]) {
+            blinkers[d.id] = d;
+          }
+        }
+      }
+    }
+  });
+  if (!blinkIntervals && Object.keys(blinkers).length) {
+    blinkIntervals = setInterval(blink.bind(this), 1000);
+  }
+}
+window['startBlinking'] = startBlinking;
+
+function stopBlinking() {
+  if (blinkIntervals) {
+    clearInterval(blinkIntervals);
+    blinkIntervals = 0;
+  }
+  blinkers = {};
+}
+window['stopBlinking'] = stopBlinking;
 
 function toggleAll(d) {
    if (d.children) {

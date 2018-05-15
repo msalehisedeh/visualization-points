@@ -111,6 +111,15 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
       this.onVisualization.emit([]);
     }
   }
+  updateNodeDataRefrence(originalNode, refrenceAttribute) {
+    window['updateNodeDataRefrence'](originalNode, refrenceAttribute)
+  }
+  startBlinking() {
+    window['startBlinking'](this.settings);
+  }
+  stopBlinking() {
+    window['stopBlinking']();
+  }
 
   constructor(
     private pointMaker: VisualizationPointsMaker, 
@@ -118,9 +127,9 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   ) {
   }
 
-  ngOnChanges(chages) {
+  ngOnChanges(changes: any) {
 
-    if (chages.data) {
+    if (changes.data) {
       this.interestingPoints = undefined;
       this.targetKeys =undefined;
       setTimeout(this.ngOnInit.bind(this), 333);

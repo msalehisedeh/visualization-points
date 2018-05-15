@@ -32,6 +32,7 @@ export class VisualizationConfigurationComponent {
     directionality: "L2R",
     nodeType: "Plain",
     targetDiv: "#d3-container",
+    blinkAttributesWatch: [],
     styles: {
       links: {
         "default-line-color": "gray",

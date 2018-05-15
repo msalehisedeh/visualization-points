@@ -377,11 +377,31 @@ var VisualizationPointsComponent = (function () {
         }
     };
     /**
-     * @param {?} chages
+     * @param {?} originalNode
+     * @param {?} refrenceAttribute
      * @return {?}
      */
-    VisualizationPointsComponent.prototype.ngOnChanges = function (chages) {
-        if (chages.data) {
+    VisualizationPointsComponent.prototype.updateNodeDataRefrence = function (originalNode, refrenceAttribute) {
+        window['updateNodeDataRefrence'](originalNode, refrenceAttribute);
+    };
+    /**
+     * @return {?}
+     */
+    VisualizationPointsComponent.prototype.startBlinking = function () {
+        window['startBlinking'](this.settings);
+    };
+    /**
+     * @return {?}
+     */
+    VisualizationPointsComponent.prototype.stopBlinking = function () {
+        window['stopBlinking']();
+    };
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    VisualizationPointsComponent.prototype.ngOnChanges = function (changes) {
+        if (changes.data) {
             this.interestingPoints = undefined;
             this.targetKeys = undefined;
             setTimeout(this.ngOnInit.bind(this), 333);
@@ -525,6 +545,7 @@ var VisualizationConfigurationComponent = (function () {
             directionality: "L2R",
             nodeType: "Plain",
             targetDiv: "#d3-container",
+            blinkAttributesWatch: [],
             styles: {
                 links: {
                     "default-line-color": "gray",

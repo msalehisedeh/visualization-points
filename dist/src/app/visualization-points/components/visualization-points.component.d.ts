@@ -17,8 +17,11 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     d3Container: any;
     private sizeUp(points);
     private triggerEvaluation(points, primaries);
+    updateNodeDataRefrence(originalNode: any, refrenceAttribute: any): void;
+    startBlinking(): void;
+    stopBlinking(): void;
     constructor(pointMaker: VisualizationPointsMaker, evaluator: VisualizationPointsEvaluator);
-    ngOnChanges(chages: any): void;
+    ngOnChanges(changes: any): void;
     private findReferenceStructureFrom(array);
     ngOnInit(): void;
     ngAfterViewInit(): Promise<void>;

@@ -14,6 +14,7 @@ export interface D3Configuration {
         y: number;
         r: number;
     };
+    blinkAttributesWatch?: string[];
     onclick?: any;
     onhover?: any;
     styles: {

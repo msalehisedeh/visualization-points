@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { AppService } from './app.service'
 import { D3Configuration } from './visualization-points/interfaces/interfaces';
+import { VisualizationPointsComponent } from './visualization-points/components/visualization-points.component';
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,9 @@ import { D3Configuration } from './visualization-points/interfaces/interfaces';
 })
 export class AppComponent {
   title = 'Visualization Points';
+
+  @ViewChild('visualizer')
+  private visualizer: VisualizationPointsComponent;
 
   selectionEntry = [
     "users",
@@ -22,13 +26,17 @@ export class AppComponent {
   groupduplicates = false;
   error = undefined;
   
-  myDataSet = [];  
-  resultingTree = {};
+  myDataSet = [];
+  blinker;
+  blinkerRefrence= "index";
+  triggerBlinker = false;
+  resultingTree: any;
   mySettings: D3Configuration = {
     tooltipEnabled: false,
     directionality: "L2R",
     nodeType: "Plain",
     targetDiv: "#d3-container",
+    blinkAttributesWatch: [],
     onclick: (event: any) => {},
     onhover: (event: any) => {},
     styles: {
@@ -126,30 +134,62 @@ export class AppComponent {
     // Then clear pasted content from the input
   }
 
+  doBlink(event) {
+    this.triggerBlinker = !this.triggerBlinker;
+
+    if (this.resultingTree) {
+      if (this.triggerBlinker) {
+        var x = this.resultingTree;
+        var target;
+        while(x.children && x.children.length) {
+          var i = Math.floor(Math.random()*x.children.length);
+          if (x.children && x.children.length) {
+            target = x;
+          }
+          x = x.children[i];
+        }
+        if (target) {
+          target.data.blinkThis = true;
+          this.mySettings.blinkAttributesWatch = ["blinkThis"];
+          this.blinker = target.data;
+          this.visualizer.updateNodeDataRefrence(target.data, this.blinkerRefrence);
+          this.visualizer.startBlinking();
+        }
+      } else if (this.blinker) {
+        delete this.blinker.blinkThis;
+        this.visualizer.stopBlinking();
+      }
+    }
+  }
   onVisualization(event) {
-	this.resultingTree = event;
+    this.triggerBlinker = false;
+	  this.resultingTree = (((event instanceof Array) && event.length) || Object.keys(event).length) ? event : undefined;
   }
 
   visualizeDataSet(event) {
     const data = event.target.value;
 
     this.myDataSet = undefined;
-    this.resultingTree = [];
+    this.resultingTree = undefined;
     
     if (data === "users") {
       this.service.usersList().subscribe( (results) => {
         this.myDataSet = results;
+        this.blinkerRefrence = "index";
       })
     } else if (data === "events") {
       this.service.eventsList().subscribe( (results) => {
         this.myDataSet = results;
+        this.blinkerRefrence = "timestamp";
       })
     } else if (data === "products") {
       this.service.productsList().subscribe( (results) => {
         this.myDataSet = results;
+        this.blinkerRefrence = "id";
       })
     } else {
         this.myDataSet = this.selectionContents[data];
+        this.blinkerRefrence = "id";
     }
   }
 

@@ -9,6 +9,22 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
 
 
+## Version 0.5.0
+Added ability to make a node blink ;-)
+So.... How you can make a node blink? Simply send update request to the visualizer when a node status is changed and warant a visual update.
+```javascript
+  mySetting.blinkAttributesWatch = ["anAttribute"]
+  visualizationPointsComponent.updateNodeDataRefrence(node, uniqueAttribute);
+  visualizationPointsComponent.startBlinking();
+
+  where uniqueAttribute is simply to be used to find the node copies in the visualizer tree.
+  And anAttribute in blinkAttributesWatch is a flag in node data telling D3 to blink the node if flag is set.  You can include multitude of flags from different nodes in blinkAttributesWatch. 
+
+  ... AND at some point you may want to stop the blinking...
+
+  visualizationPointsComponent.stopBlinking();
+```
+
 ## Version 0.4.0
 Added onclick and onhover methods. Added more styling capabilities to make more visual choices.
 I had to change configuration structure needed as input. But do not worry, if you already using the configuration defined in previus version, i have Added code to convert that into the new structure. But you need to adhere to the new configuration structure at some point to rip the benefit of what is provided for you. You can now define type of border lines, paths, and node sizes to be desiplayed on hover or when a node is selected... Hope this helps you in your endeavor.
@@ -71,10 +87,12 @@ export interface D3Configuration {
     targetDiv: string,
     baseRectangle?: { x: number, y: number, width: number, height: number},
     baseCircle?: { x: number, y: number, r: number},
+    blinkAttributesWatch?: string[], // if a node attribute is set then blink the node and its path
     onclick?: any,
     onhover?: any,
     styles: {
         links: { 
+            colors?: any, // depricated
             "default-line-color"?: string,
             "hover-line-color"?: string,
             "selected-line-color"?: string,
@@ -88,6 +106,7 @@ export interface D3Configuration {
             "selected-size"?: number
         },
         nodes: {
+            colors?: any, // depricated
             "default-background-color"?: string,
             "hover-background-color"?: string,
             "selected-background-color"?: string,
