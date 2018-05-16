@@ -11235,7 +11235,7 @@ function blink() {
   }
   d3.selectAll("path")
   .style("stroke", function(d) {
-    return d.target.blink ? 
+    return d.target.blink || d.target.traced ? 
               configuration.styles.links["hover-line-color"] : 
               (d.target.selected ? 
                 configuration.styles.links["selected-line-color"] : 
@@ -11245,10 +11245,10 @@ function blink() {
     var x = configuration.styles.links["selected-line-dasharray"];
     var y = configuration.styles.links["default-line-dasharray"];
     var z = configuration.styles.links["hover-line-dasharray"];
-    return d.target.blink ? (z ? z : "1000,0") : d.target.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
+    return d.target.blink || d.target.traced ? (z ? z : "1000,0") : d.target.selected ? (x ? x : "1000,0") : (y ? y : "1000,0");
   })
   .attr("stroke-width", function (d) {
-    return d.target.blink ? 
+    return d.target.blink || d.target.traced ? 
             configuration.styles.links["hover-size"] : 
             (d.target.selected ? 
               configuration.styles.links["selected-size"] :
@@ -11257,12 +11257,14 @@ function blink() {
 }
 function updateNodeDataRefrence(originalNode, refrenceAttribute) {
   var value = originalNode[refrenceAttribute];
+  var newNode= JSON.parse(JSON.stringify(originalNode));
   var nodes = tree.nodes(root).reverse();
 
+  if (value !== undefined)
   nodes.forEach(function(d) {
     if (d.data) {
       if (d.data[refrenceAttribute] == value) {
-        d.data = JSON.parse(JSON.stringify(originalNode));
+        d.data = newNode;
       }
     }
   });
