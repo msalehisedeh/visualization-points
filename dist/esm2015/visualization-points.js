@@ -782,7 +782,7 @@ VisualizationConfigurationComponent.decorators = [
             type="checkbox"
             name="tooltip"
             id="tooltip"
-            [checked]="tooltipEnabled ? true: null"
+            [checked]="configuration.tooltipEnabled ? true: null"
             (keyup)="keyup($event)"
             (click)="click($event, 'tooltipEnabled')" />
         <span>Enable Tool tip</span>

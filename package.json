@@ -1,6 +1,6 @@
 {
   "name": "visualization-points",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -10,12 +10,23 @@
     "packagr": "ng-packagr -p ng-package.json"
   },
   "private": false,
-  "keywords":[
-	"angular", "d3", "tree", 
-	"visualization", 
-	"configurable", "flexible", "auto generated", 
-	"svg", "animation", "canvas", 
-	"data", "data mining", "mining", "investigate", "poke", "search"
+  "keywords": [
+    "angular",
+    "d3",
+    "tree",
+    "visualization",
+    "configurable",
+    "flexible",
+    "auto generated",
+    "svg",
+    "animation",
+    "canvas",
+    "data",
+    "data mining",
+    "mining",
+    "investigate",
+    "poke",
+    "search"
   ],
   "dependencies": {
     "@angular/common": "^5.0.0 || ^4.0.0 || ^2.0.0",
@@ -27,6 +38,8 @@
   "devDependencies": {
     "@angular/cli": "^1.6.7",
     "@angular/compiler-cli": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/platform-browser": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/platform-browser-dynamic": "^5.0.0 || ^4.0.0 || ^2.0.0",
     "@types/node": "^6.0.60",
     "codelyzer": "^3.2.0",
     "ng-packagr": "^2.0.0",

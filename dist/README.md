@@ -9,6 +9,9 @@ If you want to see the result represented in any other form or fashion, you are 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
 
 
+## Version 1.0.0
+Compiled with AOT option and resolved issues.
+
 ## Version 0.5.0
 Added ability to make a node blink ;-)
 So.... How you can make a node blink? Simply send update request to the visualizer when a node status is changed and warant a visual update.

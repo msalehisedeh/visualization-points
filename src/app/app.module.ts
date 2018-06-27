@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { VisualizationPointsModule } from './visualization-points/visualization-points.module';
 
@@ -11,6 +12,7 @@ import { AppService } from './app.service';
     AppComponent
   ],
   imports: [
+	CommonModule,
     VisualizationPointsModule
   ],
   providers: [
