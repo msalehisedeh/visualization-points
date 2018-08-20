@@ -4,10 +4,14 @@ Have you ever wanted to extract information in visually pleasing way from a data
 Have you wondered what it takes to do it? and how long will it take? Well... wonder no more and add this component into your project... 
 And make sure the **data** you are supplying is a list of JSON Objects!
 
+**NOTE:** Starting with version 1.1.0 this library is compatible with Angular 6+.
+
 If you want to see the result represented in any other form or fashion, you are welcome to shoot me a message or join me in this effort and make it even easier to snoop into a data of unknown structure...
 
-[Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
+[Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points/tree/master/src/app) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
 
+# Version 1.1.0
+Updated libraries to become compatible with Angular 6+. 
 
 ## Version 1.0.0
 Compiled with AOT option and resolved issues.

@@ -1,6 +1,6 @@
 {
   "name": "visualization-points",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -11,7 +11,10 @@
   },
   "private": false,
   "keywords": [
-    "angular",
+    "angular 2+",
+    "angular 4+",
+    "angular 5+",
+    "angular 6+",
     "d3",
     "tree",
     "visualization",
@@ -29,18 +32,19 @@
     "search"
   ],
   "dependencies": {
-    "@angular/common": "^5.0.0 || ^4.0.0 || ^2.0.0",
-    "@angular/compiler": "^5.0.0 || ^4.0.0 || ^2.0.0",
-    "@angular/core": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/common": "^6.0.0 || ^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/compiler": "^6.0.0 || ^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/core": "^6.0.0 || ^5.0.0 || ^4.0.0 || ^2.0.0",
     "core-js": "^2.4.1",
     "zone.js": "^0.8.14",
     "tslib": "^1.7.1"
   },
   "devDependencies": {
     "@angular/cli": "^1.6.7",
-    "@angular/compiler-cli": "^5.0.0 || ^4.0.0 || ^2.0.0",
-    "@angular/platform-browser": "^5.0.0 || ^4.0.0 || ^2.0.0",
-    "@angular/platform-browser-dynamic": "^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/compiler-cli": "^6.0.0 || ^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/platform-browser": "^6.0.0 || ^5.0.0 || ^4.0.0 || ^2.0.0",
+    "@angular/platform-browser-dynamic": "^6.0.0 || ^5.0.0 || ^4.0.0 || ^2.0.0",
+    "rxjs": "^6.2.2",
     "@types/node": "^6.0.60",
     "codelyzer": "^3.2.0",
     "ng-packagr": "^2.0.0",
