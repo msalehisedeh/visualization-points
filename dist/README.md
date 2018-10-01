@@ -204,7 +204,7 @@ in your `.angular-cli.json` file include the following:
 
       "assets": [
         "assets",
-        { "glob": "**/*", "input": "../node_modules/visualization-points/assets/", "output": "./assets/" },
+        { "glob": "**/*", "input": "../node_modules/visualization-points/src/assets/", "output": "./assets/" },
         "favicon.ico"
       ],
 
