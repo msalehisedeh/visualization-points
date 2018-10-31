@@ -10,6 +10,9 @@ If you want to see the result represented in any other form or fashion, you are 
 
 [Live Demo](https://visualization-points.stackblitz.io) | [Source code](https://github.com/msalehisedeh/visualization-points/tree/master/src/app) | [Comments/Requests](https://github.com/msalehisedeh/visualization-points/issues)
 
+# Version 1.2.0
+It was brought to my attention that some users have trouble using my components in their angular 6 environment. Since I had only updated few dependencies when moved to Angular 6, I am thinking dependencies are causing issues. So, for this release, I am updating all dependencies to what Angular 6 applications are expecting to have. Please let me know if this is fixing or not fixing any issues you are facing.
+
 # Version 1.1.0
 Updated libraries to become compatible with Angular 6+. 
 
@@ -204,7 +207,7 @@ in your `.angular-cli.json` file include the following:
 
       "assets": [
         "assets",
-        { "glob": "**/*", "input": "../node_modules/visualization-points/assets/", "output": "./assets/" },
+        { "glob": "**/*", "input": "../node_modules/visualization-points/src/assets/", "output": "./assets/" },
         "favicon.ico"
       ],
 
