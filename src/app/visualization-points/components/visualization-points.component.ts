@@ -81,7 +81,7 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   @Output("onVisualization")
   onVisualization = new EventEmitter();
 
-  @ViewChild("d3Container")
+  @ViewChild("d3Container", {static: false})
   d3Container;
 
   private sizeUp(points) {

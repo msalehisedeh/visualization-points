@@ -193,25 +193,26 @@ So.... How you can make a node blink?
 ```
 ## Versions
 
-| Version      |Description                                                           |
-|--------------|----------------------------------------------------------------------|
-|version 1.2.1 |Fix dependencies.                                                     |
-|version 1.2.0 |It was brought to my attention that some users have trouble using my components in their angular 6 environment. Since I had only updated few dependencies when moved to Angular 6, I am thinking dependencies are causing issues. So, for this release, I am updating all dependencies to what Angular 6 applications are expecting to have. Please let me know if this is fixing or not fixing any issues you are facing. |
-|version 1.1.0 |Updated libraries to become compatible with Angular 6+.               |
-|version 1.0.0 |Compiled with AOT option and resolved issues.                         |
-|version 0.5.0 |Added ability to make a node blink ;-)                                |
-|version 0.4.0 |Added onclick and onhover methods. Added more styling capabilities to make more visual choices. I had to change configuration structure needed as input. But do not worry, if you already using the configuration defined in previous version, i have Added code to convert that into the new structure. But you need to adhere to the new configuration structure at some point to rip the benefit of what is provided for you. You can now define type of border lines, paths, and node sizes to be displayed on hover or when a node is selected... Hope this helps you in your endeavour. |
-|version 0.3.0 |Added ability to set node and link colors. Modified code to make sample work on StackBlitz. |
-|version 0.2.0 |Added path highlight on hover over node, path selection on click over node, and zoom in/out with doubleClick and shift+doublrClick. Upgraded to d3 version 3.2.7 |
-|version 0.1.0 |Added directionality, hover tool tip, node display type selection. You will have option to display tree from left to right, right to left, or top down.  In addition, you can enable tool tip and be able to see details of each node.  It is now possible to select a circular, rectangular, or default display of nodes. |
-|version 0.0.9 |Added ability to group duplicate results together.. try it out on the live demo on users or products data set and see if it can help you gain new insights into the available data!! |
-|version 0.0.8 |Occasionally you may want to see duplicate result generated to see relative results for each item in the list. By default, this flag is not set. Try it out and see if you can visually see something meaningful in your data set. |
-|version 0.0.7 |Fixed internal logic to handle complex JSON objects. It turns out, providing correct result values for paths to target keys which are not necessarily intersect with paths in pick points while traversing through arrays, will become extremely complicated. As a result, performance-wise, it is necessary to filter out the deep nested target keys.  |
-|version 0.0.6 |Fixed internal logic for picking up the most number of attributes on a list with variant sub-items. |
-|version 0.0.5 |Fixed internal logic for parsing JSON attributes.                     |
-|version 0.0.4 |Removing duplicates in generated result.                              |
-|version 0.0.3 |Fixed logic issues related to value of pick point being a boolean. Fixed logic issues related to value of pick point being an array. |
-|version 0.0.1 |Original release.                                                     |
+|Version|Description                                                           |
+|-------|----------------------------------------------------------------------|
+| 2.0.0 |updated to Angular 8.                                                 |
+| 1.2.1 |Fix dependencies.                                                     |
+| 1.2.0 |It was brought to my attention that some users have trouble using my components in their angular 6 environment. Since I had only updated few dependencies when moved to Angular 6, I am thinking dependencies are causing issues. So, for this release, I am updating all dependencies to what Angular 6 applications are expecting to have. Please let me know if this is fixing or not fixing any issues you are facing. |
+| 1.1.0 |Updated libraries to become compatible with Angular 6+.               |
+| 1.0.0 |Compiled with AOT option and resolved issues.                         |
+| 0.5.0 |Added ability to make a node blink ;-)                                |
+| 0.4.0 |Added onclick and onhover methods. Added more styling capabilities to make more visual choices. I had to change configuration structure needed as input. But do not worry, if you already using the configuration defined in previous version, i have Added code to convert that into the new structure. But you need to adhere to the new configuration structure at some point to rip the benefit of what is provided for you. You can now define type of border lines, paths, and node sizes to be displayed on hover or when a node is selected... Hope this helps you in your endeavour. |
+| 0.3.0 |Added ability to set node and link colors. Modified code to make sample work on StackBlitz. |
+| 0.2.0 |Added path highlight on hover over node, path selection on click over node, and zoom in/out with doubleClick and shift+doublrClick. Upgraded to d3 version 3.2.7 |
+| 0.1.0 |Added directionality, hover tool tip, node display type selection. You will have option to display tree from left to right, right to left, or top down.  In addition, you can enable tool tip and be able to see details of each node.  It is now possible to select a circular, rectangular, or default display of nodes. |
+| 0.0.9 |Added ability to group duplicate results together.. try it out on the live demo on users or products data set and see if it can help you gain new insights into the available data!! |
+| 0.0.8 |Occasionally you may want to see duplicate result generated to see relative results for each item in the list. By default, this flag is not set. Try it out and see if you can visually see something meaningful in your data set. |
+| 0.0.7 |Fixed internal logic to handle complex JSON objects. It turns out, providing correct result values for paths to target keys which are not necessarily intersect with paths in pick points while traversing through arrays, will become extremely complicated. As a result, performance-wise, it is necessary to filter out the deep nested target keys.  |
+| 0.0.6 |Fixed internal logic for picking up the most number of attributes on a list with variant sub-items. |
+| 0.0.5 |Fixed internal logic for parsing JSON attributes.                     |
+| 0.0.4 |Removing duplicates in generated result.                              |
+| 0.0.3 |Fixed logic issues related to value of pick point being a boolean. Fixed logic issues related to value of pick point being an array. |
+| 0.0.1 |Original release.                                                     |
 
 
 ![alt text](https://raw.githubusercontent.com/msalehisedeh/visualization-points/master/sample.png  "What you would see when a visualization points is used")

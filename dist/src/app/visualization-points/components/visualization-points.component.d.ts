@@ -13,19 +13,19 @@ export declare class VisualizationPointsComponent implements OnInit, AfterViewIn
     groupduplicates: boolean;
     settings: D3Configuration;
     enableConfiguration: boolean;
-    onVisualization: EventEmitter<{}>;
+    onVisualization: EventEmitter<any>;
     d3Container: any;
-    private sizeUp(points);
-    private triggerEvaluation(points, primaries);
+    private sizeUp;
+    private triggerEvaluation;
     updateNodeDataRefrence(originalNode: any, refrenceAttribute: any): void;
     startBlinking(): void;
     stopBlinking(): void;
     constructor(pointMaker: VisualizationPointsMaker, evaluator: VisualizationPointsEvaluator);
     ngOnChanges(changes: any): void;
-    private findReferenceStructureFrom(array);
+    private findReferenceStructureFrom;
     ngOnInit(): void;
     ngAfterViewInit(): Promise<void>;
-    private loadScript(url, id);
-    private sanitize(list);
+    private loadScript;
+    private sanitize;
     onchange(event: any): void;
 }
