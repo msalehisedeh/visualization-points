@@ -1,0 +1,81 @@
+
+.json-view {
+    border: 1px solid #633;
+    background-color: #fefefe;
+    border-radius: 5px;
+    box-sizing: border-box;
+    display: block;
+    max-height: 222px;
+    min-height: 222px;
+    overflow-y: auto;
+    position: relative;
+
+    font-family: monospace;
+    float: left;
+    padding: 5px;
+    unicode-bidi: embed;
+    width: 100%;
+    white-space: pre-wrap;
+}
+.resources {
+  text-align: center;
+}
+.info {
+  background-color: #29ee22;
+  color: #fff;
+  padding: 10px;
+  background-color: #179613;
+  border: 1px solid #633;
+  border-radius: 5px;
+  margin: 25px 0 10px 0;
+}
+
+.alert {
+  background-color: #e22;
+  color: #fff;
+  padding: 10px;
+  border: 1px solid #633;
+  border-radius: 5px;
+  margin: 25px 0 10px 0;
+}
+
+#entry {
+    width: 90%;
+    height: 100%;
+    display: table;
+    z-index: 22;
+    border: 1px solid #633;
+    border-radius: "5px";
+    padding: 15px;
+    margin: 10px auto;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px 2px #ddd;
+
+  a {
+    float: right;
+    cursor: pointer;
+  }
+  textarea {
+    display: block;
+  }
+
+  label {
+    display: table;
+    margin: 5px 0;
+  }
+  button {
+    float: right;
+    margin-bottom: 20px;
+  }
+}
+button {
+  float: laft;
+}
+td {
+  width: 50%;
+}
+th {
+  text-align: left;
+  color: #633;
+}

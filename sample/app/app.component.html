@@ -1,0 +1,70 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>
+    Welcome to {{ title }}!
+  </h1>
+</div>
+<div class="resources">
+  <a href="https://www.npmjs.com/package/@sedeh/into-pipesvisualize-it">npm install &#64;sedeh/visualize-it</a>
+  <p>Tested On Safari, Chrome, Mozilla, and IE11 browsers.</p>
+</div>
+<div class="points-maker" *ngIf="!displayEntry">
+  <label for="dataselection">Select a Data set example</label>
+  <select id="dataselection" (change)="visualizeDataSet($event)">
+      <option *ngFor="let i of selectionEntry" [value]="i" [textContent]="i" [selected]="selectedEntry == i ? true: null"></option>
+    </select>
+  <button (click)="displayEntry = true">Add new JSON in dropdown</button>
+  <span *ngIf="resultingTree"><label for="blinker">
+    <input id="blinker"
+           type="checkbox" 
+           [checked]="triggerBlinker" 
+           (click)="doBlink($event)" />Randomely trigger a node path blink</label>
+  </span>
+</div>
+<div id="entry" *ngIf="displayEntry">
+  <a (click)="displayEntry = false;">X</a>
+  <div class="info" *ngIf="!error">Please drop in JSON data and select a name for it to be added in dropdown.</div>
+  <div class="alert" *ngIf="error" [textContent]="error"></div>
+  <label for="entryName">Name: <input id="entryName" #entryName /></label>
+  <label for="pointsOfEntry" *ngIf="pointsOfEntry && pointsOfEntry.length">
+    Dropped in JSON is not an array:
+    <select name="pointsOfEntry" id="pointsOfEntry" (change)="pointOfEntry = valueOf($event)">
+      <option value="">Select point of entry</option>
+      <option *ngFor="let x of pointsOfEntry" [value]="x" [textContent]="x"></option>
+    </select>
+  </label>
+  <label for="entryJson">
+    JSON: 
+    <textarea 
+      id="entryJson" 
+      #entryJson 
+      cols="80" 
+      rows="10" 
+      (paste)="onPaste($event)" 
+      [textContent]="sampleJson"></textarea>
+  </label>
+  <button (click)="addDataEntry(entryName.value, entryJson.value)" *ngIf="!pointsOfEntry || pointOfEntry">
+  Submit
+</button>
+</div>
+<visualization-points *ngIf="!displayEntry"
+  #visualizer
+	[data]="myDataSet"
+  [enableConfiguration]="true"
+  [settings]="mySettings"
+  [allowduplicates]="allowduplicates"
+  [groupduplicates]="groupduplicates"
+	(onVisualization)="onVisualization($event)"></visualization-points>
+
+<table style="width:100%" *ngIf="!displayEntry">
+  <thead>
+    <th>Original Data</th>
+    <th>Transformed Data</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top"><div class="json-view" [innerHTML]="myDataSet | json"></div></td>
+      <td valign="top"><div class="json-view" [innerHTML]="resultingTree | json"></div></td>
+    </tr>
+  </tbody>
+</table>   
