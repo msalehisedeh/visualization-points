@@ -24,7 +24,6 @@ import { D3Configuration } from '../interfaces/interfaces';
 export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnChanges  {
 
   private evaluatedPoints: any = {};
-  private win: any = window;
   
   @Input("interestingPoints")
   interestingPoints: any[] | undefined = [];
@@ -97,7 +96,9 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   }
   private triggerEvaluation(points: any, primaries: any) {
     if (points.length && primaries.length) {
-      this.d3Container.nativeElement.innerHTML = "";
+      if (this.d3Container) {
+        this.d3Container.nativeElement.innerHTML = "";
+      }
       this.evaluatedPoints = this.evaluator.evaluatePoints(
                                 this.data, 
                                 points, 
@@ -105,21 +106,34 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
                                 this.allowduplicates,
                                 this.groupduplicates);
       const sizedupPoints = this.sizeUp(JSON.parse(JSON.stringify(this.evaluatedPoints)));
-      this.win['initiateD3'](sizedupPoints, this.settings);
+      const win: any = window;
+
+      if (win.initiateD3) {
+        win.initiateD3(sizedupPoints, this.settings);
+      }
       this.onVisualization.emit(this.evaluatedPoints);
-    } else {
+    } else if (this.d3Container) {
       this.d3Container.nativeElement.innerHTML = "";
       this.onVisualization.emit([]);
     }
   }
   updateNodeDataRefrence(originalNode: any, refrenceAttribute: any) {
-    this.win['updateNodeDataRefrence'](originalNode, refrenceAttribute)
+    const win: any = window;
+    if (win.updateNodeDataRefrence) {
+      win.updateNodeDataRefrence(originalNode, refrenceAttribute)
+    }
   }
   startBlinking() {
-    this.win['startBlinking'](this.settings);
+    const win: any = window;
+    if (win.startBlinking) {
+      win.startBlinking(this.settings);
+    }
   }
   stopBlinking() {
-    this.win['stopBlinking']();
+    const win: any = window;
+    if (win.stopBlinking) {
+      win.stopBlinking();
+    }
   }
 
   constructor(
@@ -167,7 +181,8 @@ export class VisualizationPointsComponent implements OnInit, AfterViewInit, OnCh
   }
 
   async ngAfterViewInit() {
-    if (!this.win['initiateD3']) {
+    const win: any = window;
+    if (!win.initiateD3) {
       await this.loadScript("assets/d3.js", 'd3js');
     }
  	}
